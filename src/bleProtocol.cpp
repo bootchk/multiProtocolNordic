@@ -40,16 +40,22 @@
 
 #include "ble.h"
 #include "ble_srv_common.h"	// in ble/common
-#include "ble_advdata.h"
+//#include "ble_advdata.h"
 
 // ble profiles ?
 //#include "ble_bas.h"	// in ble/ble_services/ble_bas
 //#include "ble_dis.h"
 
-#include "ble_conn_params.h"
+//#include "ble_conn_params.h"
 
 
 #include "softdevice_handler.h"  // in softdevice/common/softdevice_handler
+
+// classes interface to softdevice
+#include "gap.h"
+#include "advertisement.h"
+
+
 
 
 // When changing this number remember to adjust the RAM settings
@@ -194,8 +200,10 @@ void BLEProtocol::start() {
 
 	err_code = softdevice_ble_evt_handler_set(dispatchBleEvent);
 	APP_ERROR_CHECK(err_code);
+	GAP::initParams();
+	Advertisement::init();
+	//Advertiser::init();
 	/*
-	gap_params_init();
 	advertising_init();
 	services_init();
 	//sensor_simulator_init();
