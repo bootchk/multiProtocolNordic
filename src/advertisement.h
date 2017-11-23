@@ -1,8 +1,12 @@
 
 #pragma once
 
+/*
+ * Describes a service.
+ */
 class Advertisement {
 public:
-	// Build and set advertising data.
+	// Build advertising data.
+	// Set it to BLE stack
 	static void init();
 };

@@ -54,6 +54,9 @@
 // classes interface to softdevice
 #include "gap.h"
 #include "advertisement.h"
+#include "advertiser.h"
+#include "service.h"
+
 
 
 
@@ -201,15 +204,15 @@ void BLEProtocol::start() {
 	err_code = softdevice_ble_evt_handler_set(dispatchBleEvent);
 	APP_ERROR_CHECK(err_code);
 	GAP::initParams();
+
+	// Prepare for advertising
 	Advertisement::init();
-	//Advertiser::init();
+	Advertiser::init();
+
+	Service::init();
 	/*
-	advertising_init();
-	services_init();
-	//sensor_simulator_init();
 	conn_params_init();
-	//application_timers_start();
 	sec_params_init();
-	advertising_start();
 	*/
+	Advertiser::startAdvertising();
 }

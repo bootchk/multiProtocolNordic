@@ -11,6 +11,7 @@ The control app has plenty of power to scan for the peripheral, which sleeps mos
 Experimental.
 
 Derived from NRF SDK examples/multiprotocol/ble_app_gzll
+Modified to be object oriented, hopefully more understandable and modifiable.
 
 Project is C++
 Some hacks necessary to get C code to compile with C++
@@ -25,4 +26,12 @@ and integrate with an app that uses a proprietary protocol most of the time.
 Burn it to NRF52DK along with SD 132 or 112?
 Test it with NRF app for iPhone "NRF Connect."
 
+
+Preprocessor symbols in Project Properties
+
+NRF_SD_BLE_API_VERSION=3
+NRF52
+BLE_STACK_SUPPORT_REQD
+
+No BOARD symbol defined (buttons and leds not used.)
 
