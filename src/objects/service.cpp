@@ -48,6 +48,9 @@ static void onDisconnect(ServiceData * p_bas, ble_evt_t * p_ble_evt)
 }
 
 
+// TODO I don't understand the semantics:
+// why does a write send enabled event to app?
+// TODO read tutorial
 static void onWrite(ServiceData * p_bas, ble_evt_t * p_ble_evt)
 {
     if (p_bas->isNotificationSupported)
@@ -82,8 +85,13 @@ static void onWrite(ServiceData * p_bas, ble_evt_t * p_ble_evt)
 }
 
 
+}	//namespace
+
+
+
 // dispatch on event type
-void onBleEvent(ServiceData * p_bas,
+void Service::onBleEvent(
+		ServiceData * p_bas,
 		ble_evt_t* p_ble_evt)
 {
     if (p_bas == NULL || p_ble_evt == NULL)
@@ -111,8 +119,6 @@ void onBleEvent(ServiceData * p_bas,
     }
 }
 
-
-}
 
 
 // TODO pass in appEventHandler

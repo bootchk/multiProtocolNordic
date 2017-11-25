@@ -70,5 +70,6 @@ struct ServiceData
  */
 class Service {
 public:
+	static void onBleEvent(ServiceData*, ble_evt_t*);
 	static uint32_t init();
 };

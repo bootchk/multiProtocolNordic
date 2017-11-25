@@ -10,4 +10,5 @@ public:
 	// Used when advertising.
 	static void init();
 	static void startAdvertising();
+	static void stopAdvertising();
 };

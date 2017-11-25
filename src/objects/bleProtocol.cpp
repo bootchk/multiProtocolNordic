@@ -46,7 +46,7 @@
 //#include "ble_bas.h"	// in ble/ble_services/ble_bas
 //#include "ble_dis.h"
 
-//#include "ble_conn_params.h"
+
 
 
 #include "softdevice_handler.h"  // in softdevice/common/softdevice_handler
@@ -56,7 +56,7 @@
 #include "advertisement.h"
 #include "advertiser.h"
 #include "service.h"
-
+#include "connection.h"
 
 
 
@@ -67,6 +67,11 @@
 
 
 
+namespace {
+
+ServiceData serviceData;
+
+}
 
 /* Dispatch/handle App's BLE events.
  *
@@ -163,15 +168,19 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
 
 
-/* Dispatch BLE stack event to all modules with a BLE stack event handler.
+/*
+ * Dispatch BLE stack event to all modules with a BLE stack event handler.
  *
  * Registered with and called from the BLE Stack event interrupt handler.
  */
 static void dispatchBleEvent(ble_evt_t * bleEvent)
 {
-    //lkk ble_hrs_on_ble_evt(&m_hrs, bleEvent);
-    //lkk ble_bas_on_ble_evt(&m_bas, bleEvent);
+	// Service events
+	Service::onBleEvent(&serviceData, bleEvent);
+
     //lkk ble_conn_params_on_ble_evt(bleEvent);
+
+	// GAP events
     on_ble_evt(bleEvent);
 }
 
@@ -203,6 +212,7 @@ void BLEProtocol::start() {
 
 	err_code = softdevice_ble_evt_handler_set(dispatchBleEvent);
 	APP_ERROR_CHECK(err_code);
+
 	GAP::initParams();
 
 	// Prepare for advertising
@@ -210,9 +220,28 @@ void BLEProtocol::start() {
 	Advertiser::init();
 
 	Service::init();
+
 	/*
-	conn_params_init();
+	 No connection negotiation.
+	 No security.
+
+	Connection::initParams();
 	sec_params_init();
 	*/
+
+
+}
+
+void BLEProtocol::stop() {
+
+}
+
+
+void BLEProtocol::startAdvertising() {
 	Advertiser::startAdvertising();
 }
+void BLEProtocol::stopAdvertising() {
+	Advertiser::stopAdvertising();
+
+}
+
