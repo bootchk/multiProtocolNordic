@@ -37,7 +37,6 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
 /** @file
  *
  * @defgroup app_error Common application error handler
@@ -52,8 +51,6 @@
 #include "app_error.h"
 #include "nordic_common.h"
 #include "sdk_errors.h"
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
 /**@brief Function for error handling, which is called when an error has occurred.
  *
  * @warning This handler is an example only and does not fit a final product. You need to analyze

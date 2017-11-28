@@ -4,7 +4,7 @@
 		<cconfiguration id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1147790232">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1147790232" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="NRF_SDK" type="VALUE_TEXT" value="/home/bootch/nRF5_SDK_12.3.0"/>
+					<stringMacro name="NRF_SDK" type="VALUE_TEXT" value="/home/bootch/nRF5_SDK_14.2.0_17b948a"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -70,6 +70,10 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.526432270" name="Cross ARM GNU C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1591286210" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/balloc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/experimental_memobj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/strerror&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/drivers_nrf/delay&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/experimental_section_vars&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/fstorage&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/ble/ble_advertising&quot;"/>
@@ -78,11 +82,13 @@
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/ble/common&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/device&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/softdevice/s132/headers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/softdevice/common/softdevice_handler&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/softdevice/common/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/boards&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/util&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/timer&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/external/segger_rtt&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/log&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/experimental_log&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/libraries/experimental_log/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/drivers_nrf/hal&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/toolchain&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${NRF_SDK}/components/toolchain/cmsis/include&quot;"/>
@@ -109,6 +115,7 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.117540265" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" useByScannerDiscovery="false" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/home/bootch/nRF5_SDK_12.3.0/components/toolchain/gcc"/>
 								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other.743136251" name="Other linker flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other" useByScannerDiscovery="false" value="-lc -lnosys" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input.493764844" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -128,6 +135,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external/app_timer.cpp|externalLogging/nrf_log_frontend.cpp|externalLogging/nrf_log_backend_serial.cpp|externalLogging/SEGGER_RTT.cpp|src/objects/nrfLog.cpp|src/objects/appTimer.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -207,6 +217,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="external/app_timer.cpp|externalLogging/nrf_log_frontend.cpp|externalLogging/nrf_log_backend_serial.cpp|externalLogging/SEGGER_RTT.cpp|src/objects/nrfLog.cpp|src/objects/appTimer.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>

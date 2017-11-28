@@ -1,16 +1,17 @@
 
 
+#include <objects/nrfLog.h>
 #include "objects/bleProtocol.h"
 
-#include "nrfLogging.h"
 
 
 
 int main(void)
 {
-	enableNrfLogging();
+	//NRFLog::enable();
 
 	BLEProtocol::start();
+
 	BLEProtocol::startAdvertising();
 
 	for (;;){

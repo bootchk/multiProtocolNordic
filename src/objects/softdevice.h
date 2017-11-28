@@ -1,5 +1,5 @@
 
 class Softdevice {
 public:
-	static void enable();
+	static void enable(int tag);
 };

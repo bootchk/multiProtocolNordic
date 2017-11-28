@@ -1,7 +1,11 @@
 
 #include "gap.h"
 
+#include "nrfLog.h"
+
+
 #include <inttypes.h>
+
 #include "ble_conn_params.h"
 #include "app_error.h"	// APP_ERROR_CHECK
 #include <string.h>	// memset
@@ -32,6 +36,7 @@ void GAP::initParams() {
 	err_code = sd_ble_gap_device_name_set(&sec_mode,
 			(const uint8_t *)DEVICE_NAME,
 			DEVICE_NAME_LEN);
+	//NRFLog::flush();
 	APP_ERROR_CHECK(err_code);
 
 	err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT);

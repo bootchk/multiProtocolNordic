@@ -1,6 +1,7 @@
 
 
 #include <inttypes.h>
+#include <objects/nrfLog.h>
 
 
 /*
@@ -42,16 +43,10 @@
 #include "ble_srv_common.h"	// in ble/common
 //#include "ble_advdata.h"
 
-// ble profiles ?
-//#include "ble_bas.h"	// in ble/ble_services/ble_bas
-//#include "ble_dis.h"
 
 
 
-
-#include "softdevice_handler.h"  // in softdevice/common/softdevice_handler
-
-
+#include "objects/appTimer.h"
 
 
 // classes interface to softdevice
@@ -62,26 +57,16 @@
 #include "service.h"
 #include "connection.h"
 
-#include "nrfLogging.h"
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
 void BLEProtocol::start() {
 
-	Softdevice::enable();
+	Softdevice::enable(BLEProtocol::ProtocolTag);
+
+	// Softdevice requires??
+	// AppTimer::init();
 
 	GAP::initParams();
 
@@ -112,6 +97,5 @@ void BLEProtocol::startAdvertising() {
 }
 void BLEProtocol::stopAdvertising() {
 	Advertiser::stopAdvertising();
-
 }
 
