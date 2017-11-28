@@ -10,8 +10,9 @@
 
 
 // TODO
-#define ShortSERVICEUUID 0xFFFF
+#define ShortSERVICEUUID 0x1FFF
 
+bool _isInit = false;
 
 
 /**@brief Function for initializing the Advertising functionality.
@@ -48,4 +49,10 @@ void Advertisement::init()
 
     err_code = ble_advdata_set(&advdata, NULL);
     APP_ERROR_CHECK(err_code);
+
+    _isInit = true;
 }
+
+
+bool Advertisement::isInit() { return _isInit; }
+

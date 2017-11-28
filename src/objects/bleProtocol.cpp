@@ -27,7 +27,7 @@
 // nrf.h depends on
 // toolchain/cmsis/include
 // toolchain
-#include "nrf.h"	// in /drivers
+//#include "nrf.h"	// in /drivers
 
 
 
@@ -35,18 +35,18 @@
 // s110 is BLE peripheral only but deprecated?
 
 // s132 is for BLE central/peripheral without ANT
-#include "nrf_sdm.h"	// in /softdevice/s132/headers
+//#include "nrf_sdm.h"	// in /softdevice/s132/headers
 
 #include "bleProtocol.h"
 
-#include "ble.h"
-#include "ble_srv_common.h"	// in ble/common
+//#include "ble.h"
+//#include "ble_srv_common.h"	// in ble/common
 //#include "ble_advdata.h"
 
 
 
 
-#include "objects/appTimer.h"
+//#include "objects/appTimer.h"
 
 
 // classes interface to softdevice

@@ -8,15 +8,17 @@
 
 int main(void)
 {
-	//NRFLog::enable();
+	NRFLog::enable();
 
 	BLEProtocol::start();
 
+	NRFLog::log("start advertising");
 	BLEProtocol::startAdvertising();
 
 	for (;;){
 		// Toggle between protocols
 
 		// TODO
+		NRFLog::log("looping");
 	}
 }
