@@ -2,15 +2,16 @@
 #include "advertisement.h"
 
 
+// Implementation
 
 #include <inttypes.h>
+
 #include "ble_advdata.h"
 #include "app_error.h"	// APP_ERROR_CHECK
 
+#include "../objects/uuid.h"
 
 
-// TODO
-#define ShortSERVICEUUID 0x1FFF
 
 bool _isInit = false;
 
@@ -33,10 +34,18 @@ void Advertisement::init()
      * We provide only one custom service.
      * UUID generated once, and inserted here.
      */
-    ble_uuid_t adv_uuids[] =
+    // BLE_UUID_TYPE_UNKNOWN       0x00 /**< Invalid UUID type. */
+    // #define BLE_UUID_TYPE_BLE           0x01 /**< Bluetooth SIG UUID (16-bit). */
+    // #define BLE_UUID_TYPE_VENDOR_BEGIN
+
+    ble_uuid_t adv_uuids[1];
+    adv_uuids[0]= *Uuid::getCustomServiceUUID();
+
+    /* Static initialization for UUID's defined by BT standard
     {
         {ShortSERVICEUUID, BLE_UUID_TYPE_BLE},
     };
+    */
 
 
     memset(&advdata, 0, sizeof(advdata));

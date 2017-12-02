@@ -2,9 +2,9 @@
 #include "softdevice.h"
 
 #include <inttypes.h>
-#include <objects/nrfLog.h>
+#include "../objects/nrfLog.h"
+
 #include "nrf_sdm.h"	// in /softdevice/s132/headers  // nrf_clock_lf_cfg_t
-//#include "bleProtocol.h"
 #include "app_error.h"	// APP_ERROR_CHECK
 
 //#include "ble.h"
@@ -15,6 +15,7 @@
 
 
 #include "service.h"
+#include "gap.h"
 #include "nrfLog.h"
 
 
@@ -36,124 +37,39 @@ namespace {
 
 ServiceData serviceData;
 
-/* Dispatch/handle App's BLE events.
- *
- * Specific to the app.
- */
-void on_ble_evt(const ble_evt_t * p_ble_evt, void* foo)
-{
-    uint32_t                    err_code;
-    static uint16_t             s_conn_handle = BLE_CONN_HANDLE_INVALID;
-    //static ble_gap_sec_keyset_t s_sec_keyset;
-    //ble_gap_enc_info_t        * p_enc_info;
-
-    switch (p_ble_evt->header.evt_id)
-    {
-        case BLE_GAP_EVT_CONNECTED:
-        	// Remember handle to connection, needed later
-            s_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-            break;
-
-        case BLE_GAP_EVT_DISCONNECTED:
-        	// TODO, if connection successfully set characteristic,  shutdown
-        	// else if not timed out, advertise again.
-            //advertising_start();
-            break;
-
-        case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-        	/*
-            No security.
-            s_sec_keyset.keys_peer.p_enc_key  = NULL;
-            s_sec_keyset.keys_peer.p_id_key   = NULL;
-            s_sec_keyset.keys_peer.p_sign_key = NULL;
-            err_code                          = sd_ble_gap_sec_params_reply(s_conn_handle,
-                                                                            BLE_GAP_SEC_STATUS_SUCCESS,
-                                                                            &m_sec_params,
-                                                                            &s_sec_keyset);
-            APP_ERROR_CHECK(err_code);
-            */
-            break;
-
-        case BLE_GAP_EVT_AUTH_STATUS:
-            break;
-
-        case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            err_code = sd_ble_gatts_sys_attr_set(s_conn_handle, NULL, 0, 0);
-            APP_ERROR_CHECK(err_code);
-            break;
-
-        case BLE_GAP_EVT_SEC_INFO_REQUEST:
-        	/*
-            No security.
-            if (s_sec_keyset.keys_own.p_enc_key != NULL)
-            {
-                p_enc_info = &s_sec_keyset.keys_own.p_enc_key->enc_info;
-
-                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, p_enc_info, NULL, NULL);
-                APP_ERROR_CHECK(err_code);
-            }
-            else
-            {
-                // No keys found for this device.
-                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, NULL, NULL, NULL);
-                APP_ERROR_CHECK(err_code);
-            }
-            */
-            break;
-
-        case BLE_GAP_EVT_TIMEOUT:
-            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
-            {
-                /*
-                err_code = bsp_indication_set(BSP_INDICATE_IDLE);
-                APP_ERROR_CHECK(err_code);
-
-                err_code = app_button_disable();
-                APP_ERROR_CHECK(err_code);
-
-                if (err_code == NRF_SUCCESS)
-                {
-                    // Go to system-off mode.
-                    // (this function will not return; wakeup will cause a reset)
-                    err_code = sd_power_system_off();
-                    APP_ERROR_CHECK(err_code);
-                }
-                */
-            }
-            break;
-
-        default:
-            // No implementation needed.
-            break;
-    }
-}
 
 /*
  * Dispatch BLE stack event to all modules with a BLE stack event handler.
  *
  * Registered with and called from the BLE Stack event interrupt handler.
+ *
+ * Sequentially call each module's event handler.  Many modules are observing same event.
  */
-void dispatchBleEvent(ble_evt_t * bleEvent)
+void dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 {
-	// Service events
+	NRFLog::log("bleEvent\n");
+
+	// !!! original code passes the context, to be cast
+	// ?? Here I pass the one serviceData?
 	Service::onBleEvent(&serviceData, bleEvent);
 
     //lkk ble_conn_params_on_ble_evt(bleEvent);
 
-	// GAP events
-    on_ble_evt(bleEvent, nullptr);		// TODO what should second argument be
+    GAP::onBleEvent(bleEvent, context);
 }
 
+#ifdef NOT_USED
 void dispatchSysEvent(ble_evt_t * bleEvent) {
 
 }
+#endif
 
 }
 
 
 
 
-void Softdevice::enable(int tag) {
+void Softdevice::enable() {
 	uint32_t           err_code;
 
 	// NRFLog::log("Enable SD\n");
@@ -211,7 +127,7 @@ void Softdevice::enable(int tag) {
 	// Fetch the start address of the application RAM.
 	uint32_t ram_start = 0;
 	//
-	err_code = nrf_sdh_ble_default_cfg_set(tag, &ram_start);
+	err_code = nrf_sdh_ble_default_cfg_set(Softdevice::ProtocolTag, &ram_start);
 	APP_ERROR_CHECK(err_code);
 
 	// Enable BLE stack.
@@ -219,7 +135,9 @@ void Softdevice::enable(int tag) {
 	APP_ERROR_CHECK(err_code);
 
 	// Register a handler for BLE events.
+	// bleObserver is just name of some object defined by macro
+	// last param is context to be passed to event handler
 	//NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
-	NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, dispatchBleEvent, nullptr);
+	NRF_SDH_BLE_OBSERVER(bleObserver, APP_BLE_OBSERVER_PRIO, dispatchBleEvent, nullptr);
 #endif
 }

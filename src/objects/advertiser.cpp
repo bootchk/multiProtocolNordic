@@ -22,6 +22,10 @@ static ble_gap_adv_params_t advertisingParams;	// Created by init(), used by sta
 
 namespace {
 
+/*
+ * This is the only "mode" of advertising.
+ * If using the Nordic advertising module, it will sequence a set of modes e.g. fast, slow, etc.
+ */
 void initParams() {
 	memset(&advertisingParams, 0, sizeof(advertisingParams));
 
@@ -38,10 +42,13 @@ void Advertiser::init() {
 	initParams();
 }
 
+
+/*
+ * Note no access to Advertisement, already set in the Softdevice.
+ */
 void Advertiser::startAdvertising() {
 	uint32_t err_code;
 
-	// assert params are init
 	assert(Advertisement::isInit());
 
 	err_code = sd_ble_gap_adv_start(&advertisingParams, APP_BLE_CONN_CFG_TAG);

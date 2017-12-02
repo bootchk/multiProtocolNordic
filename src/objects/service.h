@@ -44,7 +44,7 @@ struct ServiceDataInit
 
 struct ServiceData
 {
-	BleServiceEventHandler        eventHandler;
+	BleServiceEventHandler        appEventHandler;
 	uint16_t                      serviceHandle;             //  Handle of Service (as provided by the BLE stack).
 	ble_gatts_char_handles_t      characteristicHandles;     //  Handles related to characteristic.
 	//ble_srv_report_ref_t *        p_report_ref;
@@ -70,6 +70,7 @@ struct ServiceData
  */
 class Service {
 public:
-	static void onBleEvent(ServiceData*, ble_evt_t*);
+	static void onBleEvent(ServiceData*, const ble_evt_t*);
 	static uint32_t init();
+	static const ServiceData* data();
 };

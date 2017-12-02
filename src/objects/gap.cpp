@@ -24,6 +24,102 @@
 #define CONN_SUP_TIMEOUT    MSEC_TO_UNITS(4000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 
 
+
+
+
+
+void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
+
+	uint32_t                    err_code;
+	static uint16_t             s_conn_handle = BLE_CONN_HANDLE_INVALID;
+	//static ble_gap_sec_keyset_t s_sec_keyset;
+	//ble_gap_enc_info_t        * p_enc_info;
+
+	NRFLog::log("GAP event");
+	switch (bleEvent->header.evt_id)
+	{
+	case BLE_GAP_EVT_CONNECTED:
+		// Remember handle to connection, needed later
+		s_conn_handle = bleEvent->evt.gap_evt.conn_handle;
+		break;
+
+	case BLE_GAP_EVT_DISCONNECTED:
+		// TODO, if connection successfully set characteristic,  shutdown
+		// else if not timed out, advertise again.
+		//advertising_start();
+		break;
+
+	case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+		/*
+	            No security.
+	            s_sec_keyset.keys_peer.p_enc_key  = NULL;
+	            s_sec_keyset.keys_peer.p_id_key   = NULL;
+	            s_sec_keyset.keys_peer.p_sign_key = NULL;
+	            err_code                          = sd_ble_gap_sec_params_reply(s_conn_handle,
+	                                                                            BLE_GAP_SEC_STATUS_SUCCESS,
+	                                                                            &m_sec_params,
+	                                                                            &s_sec_keyset);
+	            APP_ERROR_CHECK(err_code);
+		 */
+		NRFLog::log("security params request");
+		break;
+
+	case BLE_GAP_EVT_AUTH_STATUS:
+		break;
+
+	case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+		err_code = sd_ble_gatts_sys_attr_set(s_conn_handle, NULL, 0, 0);
+		APP_ERROR_CHECK(err_code);
+		break;
+
+	case BLE_GAP_EVT_SEC_INFO_REQUEST:
+		/*
+	            No security.
+	            if (s_sec_keyset.keys_own.p_enc_key != NULL)
+	            {
+	                p_enc_info = &s_sec_keyset.keys_own.p_enc_key->enc_info;
+
+	                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, p_enc_info, NULL, NULL);
+	                APP_ERROR_CHECK(err_code);
+	            }
+	            else
+	            {
+	                // No keys found for this device.
+	                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, NULL, NULL, NULL);
+	                APP_ERROR_CHECK(err_code);
+	            }
+		 */
+		break;
+
+	case BLE_GAP_EVT_TIMEOUT:
+		if (bleEvent->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
+		{
+			/*
+	                err_code = bsp_indication_set(BSP_INDICATE_IDLE);
+	                APP_ERROR_CHECK(err_code);
+
+	                err_code = app_button_disable();
+	                APP_ERROR_CHECK(err_code);
+
+	                if (err_code == NRF_SUCCESS)
+	                {
+	                    // Go to system-off mode.
+	                    // (this function will not return; wakeup will cause a reset)
+	                    err_code = sd_power_system_off();
+	                    APP_ERROR_CHECK(err_code);
+	                }
+			 */
+		}
+		break;
+
+	default:
+		// No implementation needed.
+		break;
+	}
+}
+
+
+
 void GAP::initParams() {
 
 	uint32_t                err_code;

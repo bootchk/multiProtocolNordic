@@ -2,6 +2,7 @@
 
 #include <objects/nrfLog.h>
 #include "objects/bleProtocol.h"
+#include "objects/sleeper.h"
 
 
 
@@ -17,8 +18,10 @@ int main(void)
 
 	for (;;){
 		// Toggle between protocols
+        // TODO
 
-		// TODO
-		NRFLog::log("looping");
+		NRFLog::log("sleep");
+		Sleeper::sleepInBt();
+		NRFLog::log("loop");
 	}
 }

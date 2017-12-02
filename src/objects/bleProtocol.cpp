@@ -1,7 +1,7 @@
 
 
 #include <inttypes.h>
-#include <objects/nrfLog.h>
+#include "../objects/nrfLog.h"
 
 
 /*
@@ -46,7 +46,7 @@
 
 
 
-//#include "objects/appTimer.h"
+
 
 
 // classes interface to softdevice
@@ -56,14 +56,15 @@
 #include "advertiser.h"
 #include "service.h"
 #include "connection.h"
-
+#include "appTimer.h"
 
 
 
 
 void BLEProtocol::start() {
 
-	Softdevice::enable(BLEProtocol::ProtocolTag);
+	// OLD now done by caller
+	// Softdevice::enable(BLEProtocol::ProtocolTag);
 
 	// Softdevice requires??
 	// AppTimer::init();
@@ -73,14 +74,17 @@ void BLEProtocol::start() {
 	// Prepare for advertising
 	Advertisement::init();
 	Advertiser::init();
+	// This will advance testing each function
+	return;
 
 	Service::init();
 
+	//Connection::initParams(Service::data());
 	/*
 	 No connection negotiation.
 	 No security.
 
-	Connection::initParams();
+
 	sec_params_init();
 	*/
 

@@ -2,7 +2,6 @@
 #include "nrfLog.h"
 
 #include <inttypes.h>
-#include <objects/nrfLog.h>
 
 
 // Don't know what this is for, give link error if use it
@@ -26,10 +25,11 @@ void NRFLog::enable() {
 	NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void NRFLog::log(char * string) {
+void NRFLog::log(char const * string) {
 	// Use this if string is dynamic (on the stack)
 	//NRF_LOG_INFO("%s",nrf_log_push(string));
 	NRF_LOG_INFO("%s",string);
+	NRF_LOG_FLUSH();
 }
 
 void NRFLog::flush() {
