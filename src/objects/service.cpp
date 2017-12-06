@@ -11,6 +11,7 @@
 #include "characteristic.h"
 // Service uses
 #include "uuid.h"
+#include "nrfLog.h"
 
 
 /*
@@ -53,11 +54,12 @@ static void onDisconnect(ServiceData * serviceData, ble_evt_t const * bleEvent)
     serviceData->connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
 
+#ifdef TODO
 static void on_hrm_cccd_write(ServiceData * serviceData, ble_gatts_evt_write_t const * p_evt_write)
 {
     if (p_evt_write->len == 2)
     {
-#ifdef TODO
+
         // CCCD written, update notification state
         if (serviceData->appEventHandler != nullptr)
         {
@@ -74,24 +76,33 @@ static void on_hrm_cccd_write(ServiceData * serviceData, ble_gatts_evt_write_t c
 
             serviceData->evt_handler(serviceData, &evt);
         }
-#endif
+
     }
 }
+#endif
 
-// TODO I don't understand the semantics:
-// why does a write send enabled event to app?
-// TODO read tutorial
+
 static void onWrite(ServiceData * serviceData, ble_evt_t const * bleEvent)
 {
 
 	ble_gatts_evt_write_t const * p_evt_write = &bleEvent->evt.gatts_evt.params.write;
 
+	// if sane
+	if ((p_evt_write->handle == serviceData->characteristicHandles.value_handle) // event's handle is handle of characteristic's value
+		&&  (p_evt_write->len == 1) 						// length appropriate for value
+		&& (serviceData->appEventHandler != nullptr))	// handlerdefined
+	{
+		// Invoke apps handler
+		serviceData->appEventHandler(serviceData, p_evt_write->data[0]);
+	}
+
+#ifdef OLD
 	if (p_evt_write->handle == serviceData->characteristicHandles.cccd_handle)
 	{
 		on_hrm_cccd_write(serviceData, p_evt_write);
 	}
 
-#ifdef OLD
+
     if (serviceData->isNotificationSupported)
     {
         ble_gatts_evt_write_t * p_evt_write = &bleEvent->evt.gatts_evt.params.write;
@@ -134,6 +145,8 @@ void Service::onBleEvent(
 		ServiceData * serviceData,
 		ble_evt_t const* bleEvent)
 {
+	NRFLog::log("service event handler\n");
+
     if (serviceData == NULL || bleEvent == NULL)
     {
         return;
@@ -142,19 +155,31 @@ void Service::onBleEvent(
     switch (bleEvent->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
+        	NRFLog::log("service event connect\n");
             onConnect(serviceData, bleEvent);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
+        	NRFLog::log("service event disconnect\n");
             onDisconnect(serviceData, bleEvent);
             break;
 
+#ifdef NOT_USED
+            case BLE_GATTS_EVT_READ:
+        	NRFLog::log("gatts write\n");
+        	onWrite(serviceData, bleEvent);
+        	break;
+#endif
+
         case BLE_GATTS_EVT_WRITE:
-            onWrite(serviceData, bleEvent);
-            break;
+        	NRFLog::log("gatts write\n");
+        	onWrite(serviceData, bleEvent);
+        	break;
 
         default:
             // No implementation needed.
+        	NRFLog::log("event not handled as service\n");
+        	NRFLog::logInt(bleEvent->header.evt_id);
             break;
     }
 }
@@ -181,13 +206,10 @@ uint32_t Service::init() {
 	serviceData.isNotificationSupported    = false;
 	//serviceData.battery_level_last         = INVALID_BATTERY_LEVEL;
 
-	// TODO ???
-	// Add service
-	//BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_BATTERY_SERVICE);
 
 	err_code = sd_ble_gatts_service_add(
 			BLE_GATTS_SRVC_TYPE_PRIMARY,
-			Uuid::getCustomServiceUUID(),  //&ble_uuid,
+			Uuid::getCustomServiceUUID(),
 			&serviceData.serviceHandle);
 
 	if (err_code == NRF_SUCCESS) {

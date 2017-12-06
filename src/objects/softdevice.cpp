@@ -39,6 +39,7 @@ ServiceData serviceData;
 
 
 /*
+ * Observer, of BLE events.
  * Dispatch BLE stack event to all modules with a BLE stack event handler.
  *
  * Registered with and called from the BLE Stack event interrupt handler.
@@ -123,10 +124,25 @@ void Softdevice::enable() {
 
 	ASSERT(nrf_sdh_is_enabled());
 
-	// Configure the BLE stack using the default settings.
-	// Fetch the start address of the application RAM.
+
+
+	/*
+	 * Value to be returned by ..cfg_set.
+	 * A recommended process is to capture value in debugger,
+	 * then change your .ld script to allocate enough RAM for BLE stack
+	 * (adjust application RAM start in ld to be this value.)
+	 */
 	uint32_t ram_start = 0;
-	//
+
+	/*
+	 * Configure BLE stack using sdk_config.h file.
+	 *
+	 * See migration guide to SDK14.
+	 * Alternatives are described there.
+	 *
+	 * If you add capability to code (e.g. add a characteristic), you might need to change sdk_config.h
+	 * run through debugger, then change .ld file.
+	 */
 	err_code = nrf_sdh_ble_default_cfg_set(Softdevice::ProtocolTag, &ram_start);
 	APP_ERROR_CHECK(err_code);
 
@@ -134,9 +150,17 @@ void Softdevice::enable() {
 	err_code = nrf_sdh_ble_enable(&ram_start);
 	APP_ERROR_CHECK(err_code);
 
-	// Register a handler for BLE events.
-	// bleObserver is just name of some object defined by macro
-	// last param is context to be passed to event handler
+	/*
+	 * Register a handler for BLE events.
+	 *
+	 * SDK 14.  See "Migration guide."
+	 *
+	 * Params:
+	 * name of observer.  A valid C name.  Macro defines an instance, never used by other code.
+	 * priority of observer
+	 * handler function
+	 * optional parameter to handler (typically instance of service?
+	 */
 	//NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
 	NRF_SDH_BLE_OBSERVER(bleObserver, APP_BLE_OBSERVER_PRIO, dispatchBleEvent, nullptr);
 #endif

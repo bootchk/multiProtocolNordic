@@ -42,7 +42,7 @@
 //#include "ble.h"
 //#include "ble_srv_common.h"	// in ble/common
 //#include "ble_advdata.h"
-
+#include "app_error.h"
 
 
 
@@ -57,6 +57,7 @@
 #include "service.h"
 #include "connection.h"
 #include "appTimer.h"
+#include "uuid.h"
 
 
 
@@ -69,22 +70,21 @@ void BLEProtocol::start() {
 	// Softdevice requires??
 	// AppTimer::init();
 
+	Uuid::init();
+
 	GAP::initParams();
 
 	// Prepare for advertising
 	Advertisement::init();
 	Advertiser::init();
-	// This will advance testing each function
-	return;
 
-	Service::init();
+	uint32_t err_code = Service::init();
+	APP_ERROR_CHECK(err_code);
 
 	//Connection::initParams(Service::data());
 	/*
 	 No connection negotiation.
 	 No security.
-
-
 	sec_params_init();
 	*/
 

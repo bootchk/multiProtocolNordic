@@ -61,6 +61,11 @@ void createUUIDRepresentative(
 
 
 void Uuid::init() {
+
+	/*
+	 * !!! BLE stack must be configured to have room for two vendor specific UUID's.
+     * Else these calls may fail with error 4.
+	 */
 	// Service
 	createUUIDRepresentative(
 			&myServiceUUIDRepresentative,

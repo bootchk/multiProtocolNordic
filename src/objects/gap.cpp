@@ -2,6 +2,7 @@
 #include "gap.h"
 
 #include "nrfLog.h"
+#include "advertiser.h"
 
 
 #include <inttypes.h>
@@ -13,10 +14,6 @@
 
 
 
-#define DEVICE_NAME  "Firefly"
-#define DEVICE_NAME_LEN  7
-
-
 // Desired by peripheral.  Negotiated and set by central, so not very important.
 #define MIN_CONN_INTERVAL   MSEC_TO_UNITS(500, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
 #define MAX_CONN_INTERVAL   MSEC_TO_UNITS(1000, UNIT_1_25_MS)           /**< Maximum acceptable connection interval (1 second). */
@@ -25,13 +22,23 @@
 
 
 
+namespace {
 
+/*
+ * Any length over 6 will probably be truncated in advertisements.
+ */
+#define DEVICE_NAME_LEN  7
+const uint8_t DeviceName[DEVICE_NAME_LEN + 1] = "Firefly";
+
+uint16_t connectionHandle = BLE_CONN_HANDLE_INVALID;
+
+}
 
 
 void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 
 	uint32_t                    err_code;
-	static uint16_t             s_conn_handle = BLE_CONN_HANDLE_INVALID;
+
 	//static ble_gap_sec_keyset_t s_sec_keyset;
 	//ble_gap_enc_info_t        * p_enc_info;
 
@@ -39,14 +46,26 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 	switch (bleEvent->header.evt_id)
 	{
 	case BLE_GAP_EVT_CONNECTED:
+		NRFLog::log("GAP connected");
 		// Remember handle to connection, needed later
-		s_conn_handle = bleEvent->evt.gap_evt.conn_handle;
+		connectionHandle = bleEvent->evt.gap_evt.conn_handle;
+
+		/*
+		 * Do not stop advertising.  That yield "INVALID_STATE."
+		 */
+		// Original did not do this
+		// Advertiser::stopAdvertising();
 		break;
 
 	case BLE_GAP_EVT_DISCONNECTED:
 		// TODO, if connection successfully set characteristic,  shutdown
 		// else if not timed out, advertise again.
-		//advertising_start();
+		// original advertising_start();
+		Advertiser::startAdvertising();
+
+		NRFLog::log("GAP disconnected");
+		// original code does not do this
+		//connectionHandle = BLE_CONN_HANDLE_INVALID;
 		break;
 
 	case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
@@ -55,7 +74,7 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 	            s_sec_keyset.keys_peer.p_enc_key  = NULL;
 	            s_sec_keyset.keys_peer.p_id_key   = NULL;
 	            s_sec_keyset.keys_peer.p_sign_key = NULL;
-	            err_code                          = sd_ble_gap_sec_params_reply(s_conn_handle,
+	            err_code                          = sd_ble_gap_sec_params_reply(connectionHandle,
 	                                                                            BLE_GAP_SEC_STATUS_SUCCESS,
 	                                                                            &m_sec_params,
 	                                                                            &s_sec_keyset);
@@ -65,33 +84,66 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 		break;
 
 	case BLE_GAP_EVT_AUTH_STATUS:
+		NRFLog::log("GAP auth status");
 		break;
 
+	// TODO why handle GATTS event here?
 	case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-		err_code = sd_ble_gatts_sys_attr_set(s_conn_handle, NULL, 0, 0);
+		NRFLog::log("GAP sys attr");
+		err_code = sd_ble_gatts_sys_attr_set(connectionHandle, NULL, 0, 0);
 		APP_ERROR_CHECK(err_code);
 		break;
 
+	case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:	// 0x55
+		NRFLog::log("GATT server MTU req");
+		// TODO don't know what this value should be ???NRF_BLE_MAX_MTU_SIZE
+		err_code = sd_ble_gatts_exchange_mtu_reply(connectionHandle, NRF_SDH_BLE_GATT_MAX_MTU_SIZE );
+		APP_ERROR_CHECK(err_code);
+		break;
+
+	case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+		NRFLog::log("GAP RW auth req");
+		/*
+		 * if attr_md.rd_auth = 1, then get this event.
+		 * The Softdevice does not otherwise have an event for reads.
+		 */
+		// ??? call sd_ble_gatts_rw_authorize_reply
+		break;
+
+	case  BLE_GATTC_EVT_TIMEOUT:
+		// client
+		NRFLog::log("GATT client timeout");
+		// The SoftDevice will disable all ATT traffic and mark the ATT connection as down,
+		// but it’s up to the application to do the final disconnect with sd_ble_gap_disconnect().
+		break;
+
+	case  BLE_GATTS_EVT_TIMEOUT:
+		// server
+		NRFLog::log("GATT server timeout");
+		break;
+
 	case BLE_GAP_EVT_SEC_INFO_REQUEST:
+		NRFLog::log("GAP sec info");
 		/*
 	            No security.
 	            if (s_sec_keyset.keys_own.p_enc_key != NULL)
 	            {
 	                p_enc_info = &s_sec_keyset.keys_own.p_enc_key->enc_info;
 
-	                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, p_enc_info, NULL, NULL);
+	                err_code = sd_ble_gap_sec_info_reply(connectionHandle, p_enc_info, NULL, NULL);
 	                APP_ERROR_CHECK(err_code);
 	            }
 	            else
 	            {
 	                // No keys found for this device.
-	                err_code = sd_ble_gap_sec_info_reply(s_conn_handle, NULL, NULL, NULL);
+	                err_code = sd_ble_gap_sec_info_reply(connectionHandle, NULL, NULL, NULL);
 	                APP_ERROR_CHECK(err_code);
 	            }
 		 */
 		break;
 
 	case BLE_GAP_EVT_TIMEOUT:
+		NRFLog::log("GAP timeout");
 		if (bleEvent->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING)
 		{
 			/*
@@ -114,6 +166,8 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 
 	default:
 		// No implementation needed.
+		NRFLog::log("event not handled by GAP");
+		NRFLog::logInt(bleEvent->header.evt_id);
 		break;
 	}
 }
@@ -129,13 +183,17 @@ void GAP::initParams() {
 	// security mode: no protection, open link
 	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
 
-	err_code = sd_ble_gap_device_name_set(&sec_mode,
-			(const uint8_t *)DEVICE_NAME,
-			DEVICE_NAME_LEN);
+	err_code = sd_ble_gap_device_name_set(
+			&sec_mode,
+			DeviceName,
+			6);	// strlen(DEVICE_NAME));	//DEVICE_NAME_LEN);
 	//NRFLog::flush();
 	APP_ERROR_CHECK(err_code);
 
-	err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT);
+	// TODO
+	// err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT);
+	// err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_GARDEN_LIGHT); //GENERIC_LIGHT_FIXTURES);
+	err_code = sd_ble_gap_appearance_set(BLE_APPEARANCE_UNKNOWN); //GENERIC_LIGHT_FIXTURES);
 	APP_ERROR_CHECK(err_code);
 
 	memset(&gap_conn_params, 0, sizeof(gap_conn_params));

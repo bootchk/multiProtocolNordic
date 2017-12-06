@@ -17,6 +17,7 @@ class NRFLog {
 public:
 	static void enable();
 	static void log(char const* string);
+	static void logInt(int value);
 	static void flush();
 };
 

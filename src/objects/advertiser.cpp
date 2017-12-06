@@ -2,6 +2,7 @@
 #include "advertiser.h"
 
 #include "advertisement.h"
+#include "nrfLog.h"
 
 
 #include <inttypes.h>
@@ -51,6 +52,16 @@ void Advertiser::startAdvertising() {
 
 	assert(Advertisement::isInit());
 
+	NRFLog::log("started advertising\n");
+
 	err_code = sd_ble_gap_adv_start(&advertisingParams, APP_BLE_CONN_CFG_TAG);
 	APP_ERROR_CHECK(err_code);
 }
+
+void Advertiser::stopAdvertising() {
+	NRFLog::log("not implemented stop advertising\n");
+	uint32_t err_code;
+	err_code = sd_ble_gap_adv_stop();
+	APP_ERROR_CHECK(err_code);
+}
+

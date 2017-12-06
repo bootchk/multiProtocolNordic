@@ -50,8 +50,13 @@ void Advertisement::init()
 
     memset(&advdata, 0, sizeof(advdata));
 
-    advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-    advdata.include_appearance      = true;
+    /*
+     * !!! Advertisement is only 31 bytes.
+     * Might not be enough for a long device name AND appearance.
+     * If not enough room, device name is truncated.
+     */
+    advdata.name_type               = BLE_ADVDATA_FULL_NAME;	// Set how much of device name to advertise
+    advdata.include_appearance      = false;	// Whether to advertise appearance
     advdata.flags                   = flags;
     advdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
     advdata.uuids_complete.p_uuids  = adv_uuids;
