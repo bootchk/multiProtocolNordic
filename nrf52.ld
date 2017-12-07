@@ -3,10 +3,12 @@
 SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 
+
+/* lkk Not optimized for SD version: just leaves plenty of room for SD */
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x23000, LENGTH = 0x5d000
-  RAM (rwx) :  ORIGIN = 0x200020e0, LENGTH = 0xdf20
+  RAM (rwx) :  ORIGIN = 0x20002800, LENGTH = 0xd800
   
 }
 

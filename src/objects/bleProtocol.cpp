@@ -51,6 +51,7 @@
 
 // classes interface to softdevice
 #include "softdevice.h"
+#include "gatt.h"
 #include "gap.h"
 #include "advertisement.h"
 #include "advertiser.h"
@@ -73,6 +74,7 @@ void BLEProtocol::start() {
 	Uuid::init();
 
 	GAP::initParams();
+	Gatt::init();
 
 	// Prepare for advertising
 	Advertisement::init();
