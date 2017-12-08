@@ -1,6 +1,8 @@
 
 #include "uuid.h"
 
+#include <cassert>
+
 #include "app_error.h"
 #include "ble.h"	// def of sd_ble_uuid_add
 
@@ -29,7 +31,7 @@ ble_uuid128_t myServiceLongUUID = BLE_UUID_MIDI_SERVICE_BASE_UUID;
 ble_uuid_t myCharacteristicUUIDRepresentative;
 ble_uuid128_t myCharacteristicLongUUID = BLE_UUID_MIDI_DATA_IO_CHAR_BASE_UUID;
 
-
+bool wasInit = false;
 
 
 void createUUIDRepresentative(
@@ -53,6 +55,11 @@ void createUUIDRepresentative(
 	 * "uuid" is misnomer: is a short UUID
 	 */
 	representative->uuid = shortUUID;
+
+	/*
+	 * assert representative has a short UUID
+	 * and an index into SD internal table of vendor specific long UUID's
+	 */
 }
 
 }
@@ -78,11 +85,13 @@ void Uuid::init() {
 			&myCharacteristicLongUUID,
 			BLE_UUID_MIDI_DATA_IO_CHAR_UUID
 	);
+
+	wasInit = true;
 }
 
 
 ble_uuid_t* Uuid::getCustomServiceUUID() {
-	// assert init was called
+	assert(wasInit);
 	return &myServiceUUIDRepresentative;
 }
 
