@@ -10,6 +10,7 @@
 #include "ble_conn_params.h"
 #include "app_error.h"	// APP_ERROR_CHECK
 #include <string.h>	// memset
+#include "ble_hci.h"	// HCI_REMOTE...
 
 
 
@@ -35,6 +36,28 @@ uint16_t connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
 
 
+void GAP::onConnect(const ble_evt_t * bleEvent) {
+	// Remember handle to connection, needed later?
+	// TODO also remembering connection in ServiceData?
+	connectionHandle = bleEvent->evt.gap_evt.conn_handle;
+}
+
+void GAP::onDisconnect() {
+
+}
+
+void GAP::disconnect(const ble_evt_t * bleEvent) {
+	uint32_t   err_code;
+
+	// TODO assert connection handle in event equals remembered connection handle?
+	err_code = sd_ble_gap_disconnect(bleEvent->evt.gattc_evt.conn_handle,
+					BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+	APP_ERROR_CHECK(err_code);
+}
+
+
+// Not used?
+
 void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 
 	uint32_t                    err_code;
@@ -47,14 +70,11 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 	{
 	case BLE_GAP_EVT_CONNECTED:
 		NRFLog::log("GAP connected");
-		// Remember handle to connection, needed later
-		connectionHandle = bleEvent->evt.gap_evt.conn_handle;
+		onConnect(bleEvent);
 
 		/*
-		 * Do not stop advertising.  That yield "INVALID_STATE."
+		 * Do not stop advertising.  That yields "INVALID_STATE."
 		 */
-		// Original did not do this
-		// Advertiser::stopAdvertising();
 		break;
 
 	case BLE_GAP_EVT_DISCONNECTED:

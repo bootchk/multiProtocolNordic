@@ -2,22 +2,20 @@
 #include "softdevice.h"
 
 #include <inttypes.h>
-#include "../objects/nrfLog.h"
 
-#include "nrf_sdm.h"	// in /softdevice/s132/headers  // nrf_clock_lf_cfg_t
 #include "app_error.h"	// APP_ERROR_CHECK
 
+
+
+#ifdef OLDER_SDK
+// Needed for SDK earlier than 14 ?
+
+//#include "nrf_sdm.h"	// in /softdevice/s132/headers  // nrf_clock_lf_cfg_t
 //#include "ble.h"
 //#include "ble_srv_common.h"
 //SDK13 #include "softdevice_handler.h"  // in softdevice/common/softdevice_handler // SOFTDEVICE_HANDLER_INIT
-#include "nrf_sdh.h"
-#include "nrf_sdh_ble.h"
-
-
-#include "service.h"
-#include "gap.h"
-#include "nrfLog.h"
-
+//#include "nrf_sdh.h"
+//#include "nrf_sdh_ble.h"
 
 // When changing this number remember to adjust the RAM settings
 #define CENTRAL_LINK_COUNT      0      // < Number of central links used by the application.
@@ -29,44 +27,12 @@
  * If not enabled, the server's database cannot be changed for the lifetime of the device
  */
 
-#define APP_BLE_OBSERVER_PRIO   3  /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
-
-
-namespace {
-
-ServiceData serviceData;
-
-
-/*
- * Observer, of BLE events.
- * Dispatch BLE stack event to all modules with a BLE stack event handler.
- *
- * Registered with and called from the BLE Stack event interrupt handler.
- *
- * Sequentially call each module's event handler.  Many modules are observing same event.
- */
-void dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
-{
-	NRFLog::log("bleEvent\n");
-
-	// !!! original code passes the context, to be cast
-	// ?? Here I pass the one serviceData?
-	Service::onBleEvent(&serviceData, bleEvent);
-
-    //lkk ble_conn_params_on_ble_evt(bleEvent);
-
-    GAP::onBleEvent(bleEvent, context);
-}
-
-#ifdef NOT_USED
-void dispatchSysEvent(ble_evt_t * bleEvent) {
-
-}
 #endif
 
-}
 
+
+#define APP_BLE_OBSERVER_PRIO   3  /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
 
 

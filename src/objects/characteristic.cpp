@@ -5,13 +5,6 @@
 
 #include "uuid.h"
 
-namespace {
-
-
-
-}
-
-
 
 
 uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused_servicefDataInit) {
@@ -63,7 +56,10 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 	//attributeMetadata.read_perm  = serviceDataInit->battery_level_char_attr_md.read_perm;
 	//attributeMetadata.write_perm = serviceDataInit->battery_level_char_attr_md.write_perm;
 	//BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attributeMetadata.read_perm);
-	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attributeMetadata.write_perm);
+	//BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attributeMetadata.write_perm);
+
+	// open (anyone, no security?) permission to write
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attributeMetadata.write_perm);
 	attributeMetadata.vloc       = BLE_GATTS_VLOC_STACK;
 	attributeMetadata.rd_auth    = 0;
 	attributeMetadata.wr_auth    = 0;

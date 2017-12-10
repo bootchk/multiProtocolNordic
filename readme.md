@@ -21,8 +21,9 @@ Status
 
 
 
-Derived from NRF SDK examples/multiprotocol/ble_app_gzll
+Initially derived from NRF SDK examples/multiprotocol/ble_app_gzll
 Modified to be object oriented, hopefully more understandable and modifiable.
+Then derived from examples/ble_peripheral/ble_app_template, which uses more abstractions from the SDK.
 
 Project is C++
 Some hacks necessary to get C code to compile with C++
@@ -62,6 +63,9 @@ in sdk_config.h
 
 NRF_SDH_BLE_VS_UUID_COUNT = 2
 since using two vendor specifig UUIDS
+
+Used many settings from ble_app_template's sdk_configh.h
+such as NRF_FSTORAGE_ENABLED (when using Advertising module)
 
 
 Linker script

@@ -140,6 +140,8 @@ static void onWrite(ServiceData * serviceData, ble_evt_t const * bleEvent)
 
 
 
+// Not used?
+
 // dispatch on event type
 void Service::onBleEvent(
 		ServiceData * serviceData,

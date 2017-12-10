@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>external/nrf_fstorage.c</name>
+			<type>1</type>
+			<location>/home/bootch/nRF5_SDK_14.2.0_17b948a/components/libraries/fstorage/nrf_fstorage.c</location>
+		</link>
+		<link>
 			<name>external2/gcc_startup_nrf52.S</name>
 			<type>1</type>
 			<location>/home/bootch/nRF5_SDK_12.3.0/components/toolchain/gcc/gcc_startup_nrf52.S</location>
