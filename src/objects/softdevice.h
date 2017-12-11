@@ -12,6 +12,8 @@ class Softdevice {
 
 public:
 	static void enable();
+	static bool isEnabled();
+	static void disable();
 
 	/*
 	 * Handler of BLE events from SD, some internal handling and some propagated to app.

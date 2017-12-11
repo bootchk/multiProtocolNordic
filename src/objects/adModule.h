@@ -8,6 +8,10 @@
 class AdModule {
 public:
 	static void init();
+
 	static void startAdvertising(bool);
+	static void stopAdvertising(bool);
+
 	static void restartWithoutWhitelist();
+
 };

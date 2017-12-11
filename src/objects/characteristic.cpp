@@ -40,7 +40,7 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 
 	// Since we zeroed it, only need to write non-zero values
 
-	//characteristicMetadata.char_props.read   = 1;	// readable
+	characteristicMetadata.char_props.read   = 1;	// readable
 	characteristicMetadata.char_props.write_wo_resp = 1;   // writeable
 	/*
 	characteristicMetadata.char_props.notify = (serviceData->isNotificationSupported) ? 1 : 0;
@@ -55,10 +55,11 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 
 	//attributeMetadata.read_perm  = serviceDataInit->battery_level_char_attr_md.read_perm;
 	//attributeMetadata.write_perm = serviceDataInit->battery_level_char_attr_md.write_perm;
-	//BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attributeMetadata.read_perm);
+
 	//BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attributeMetadata.write_perm);
 
-	// open (anyone, no security?) permission to write
+	// open (anyone, no security?) permission to read and write
+	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attributeMetadata.read_perm);
 	BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attributeMetadata.write_perm);
 	attributeMetadata.vloc       = BLE_GATTS_VLOC_STACK;
 	attributeMetadata.rd_auth    = 0;

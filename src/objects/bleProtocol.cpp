@@ -1,5 +1,6 @@
 
 
+#include <cassert>
 #include <inttypes.h>
 #include "../objects/nrfLog.h"
 
@@ -53,8 +54,9 @@
 #include "softdevice.h"
 #include "gatt.h"
 #include "gap.h"
-#include "advertisement.h"
-#include "advertiser.h"
+//#include "advertisement.h"
+//#include "advertiser.h"
+#include "adModule.h"
 #include "service.h"
 #include "connection.h"
 #include "appTimer.h"
@@ -65,12 +67,13 @@
 
 void BLEProtocol::start() {
 
-	// OLD now done by caller
-	// Softdevice::enable(BLEProtocol::ProtocolTag);
+	// caller enabled SD
+	assert(Softdevice::isEnabled());
 
-	// Softdevice requires??
-	// AppTimer::init();
+	// Softdevice does not require app_timer (it uses its own timers?)
+	// but some modules (Connection) do?
 
+#ifdef OLD
 	Uuid::init();
 
 	GAP::initParams();
@@ -89,8 +92,24 @@ void BLEProtocol::start() {
 	 No security.
 	sec_params_init();
 	*/
+#endif
 
+	/*
+	 * This sequence is as found in ble_app_template.
+	 */
+	GAP::initParams();
+	Gatt::init();
 
+	Uuid::init();	// Must precede AdModule and Service
+
+	AdModule::init();
+	// Creating service also creates its characteristics
+	uint32_t err_code = Service::init();
+	APP_ERROR_CHECK(err_code);
+
+	AppTimer::init();
+	// Module requires app_timer.  AppTimer::init() call must precede??
+	Connection::initParams();
 }
 
 void BLEProtocol::stop() {
@@ -99,9 +118,9 @@ void BLEProtocol::stop() {
 
 
 void BLEProtocol::startAdvertising() {
-	Advertiser::startAdvertising();
+	AdModule::startAdvertising(false);
 }
 void BLEProtocol::stopAdvertising() {
-	Advertiser::stopAdvertising();
+	AdModule::stopAdvertising(false);
 }
 

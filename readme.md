@@ -19,15 +19,25 @@ Status
 
  work in progress, not working.
 
-
-
 Initially derived from NRF SDK examples/multiprotocol/ble_app_gzll
-Modified to be object oriented, hopefully more understandable and modifiable.
+Modified to be object oriented: more understandable and modifiable.
 Then derived from examples/ble_peripheral/ble_app_template, which uses more abstractions from the SDK.
 
 Project is C++
 Some hacks necessary to get C code to compile with C++
 Project uses Eclipse managed make (no makefile, uses Project>Properties)
+
+Architecture
+-
+
+Layers
+    - Facade classes
+    - Modules from SDK
+    - SD
+    
+Modules from SDK require linking in certain .c files that implement the modules on top of SD.  Modules abtract away some complexities of the alternative: dealing with certain SD events yourself.
+
+The SD is closed source.  SD usually burned to flash in a separate step.  Requires linking to SD headers.  Calls to the SD are via SVC instruction.  Callbacks with events from SD to registered handlers.
 
 
 Dependencies
@@ -41,7 +51,6 @@ SD132
 
 Burn it to NRF52DK along with SD 132 or 112?
 
-
 Test it with NRF app for iPhone "NRF Connect."
 
 
@@ -49,29 +58,44 @@ Test it with NRF app for iPhone "NRF Connect."
 Configuration
 -
 
+In general, the project properties must be set to mimic the Makefile from the example ble_app_template.
+What is described here may not correspond to actual project properties.
+
 Preprocessor symbols in Project Properties
 
-NRF_SD_BLE_API_VERSION=3
-NRF52
-BLE_STACK_SUPPORT_REQD
+    NRF_SD_BLE_API_VERSION=3
+    NRF52
+    BLE_STACK_SUPPORT_REQD
 
 No BOARD symbol defined (buttons and leds not used.)
 
 
+sdk_config.h
 
-in sdk_config.h
-
-NRF_SDH_BLE_VS_UUID_COUNT = 2
-since using two vendor specifig UUIDS
+    NRF_SDH_BLE_VS_UUID_COUNT = 2       since using two vendor specifig UUIDS
 
 Used many settings from ble_app_template's sdk_configh.h
 such as NRF_FSTORAGE_ENABLED (when using Advertising module)
 
+Currently enable these modules:
+
+
+    BLE_ADVERTISING_ENABLED 1
+    NRF_BLE_CONN_PARAMS_ENABLED 1
+    NRF_BLE_GATT_ENABLED 1
+    
+    NRF_FSTORAGE_ENABLED 1	 required by advertising module
+    
+Not using Peer Manager module (not interested in bonding BT devices.)
+    
+    
+
 
 Linker script
+-
 
 Modified to allow plenty or room for SD ram.
-Did not use the process where you use the debugger to determine the optimal start address of application RAM.
+You can use the process described on Nordic website: you use the debugger to determine the optimal start address of application RAM: step through until the code where ram_start value is returned by the SD.
 
 
 Other Notes

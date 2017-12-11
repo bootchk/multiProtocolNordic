@@ -1,11 +1,19 @@
 
 #pragma once
 
-#include "service.h"
+// #include "service.h"
 
 
-
+/*
+ * Facade to Connection Parameters module.
+ *
+ * Module implements BT negotiation of connection parameters.
+ *
+ * Not needed unless your peripheral wants to negotiate with central for better connection.
+ *
+ * !!! Depends on app_timer module.
+ */
 class Connection {
 public:
-	static void initParams(const ServiceData*);
+	static void initParams();
 };

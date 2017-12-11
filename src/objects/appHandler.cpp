@@ -6,13 +6,10 @@
 #include <string.h>  // memcpy
 
 void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
-	int value;
 
-	// TODO validate
-
-	// is my characteristic
-
-	// len is proper
+	/*
+	 * validate: is my characteristic and len is proper
+	 */
 
 	/*
 	 * Filter out BT SIG defined (standard) characteristics
@@ -21,20 +18,20 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 	 */
 	if (aWrite->uuid.type == 1 or aWrite->uuid.type == 1) {
 		NRFLog::log("Ignoring write to std BT or unknown characteristic");
-		return;
 	}
 
 	/*
-	 *
 	 * If is my characteristic and length is sane.
 	 *
 	 * My characteristics are type 3,...
 	 * Type 2 is UUID of service?
 	 */
-	if (aWrite->uuid.type == 3 and aWrite->len ==1 ) {
+	else if (aWrite->uuid.type == 3 and aWrite->len ==1 ) {
 		NRFLog::log("Value written to my characteristic");
 
-		NRFLog::logInt(bleEvent->evt.gatts_evt.params.write.data[0]);
+		NRFLog::logInt(aWrite->data[0]);
+
+		// TODO, copy the value and do something with it
 	}
 	else {
 		/*
@@ -44,8 +41,6 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 		 */
 		NRFLog::log("Write to unrecognized characteristic.");
 	}
-
-	// TODO, copy the value and do something with it
 }
 
 
