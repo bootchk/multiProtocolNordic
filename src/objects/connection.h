@@ -16,4 +16,5 @@
 class Connection {
 public:
 	static void initParams();
+	static void stopPendingConnectionNegotiations();
 };

@@ -113,7 +113,8 @@ void BLEProtocol::start() {
 }
 
 void BLEProtocol::stop() {
-
+	// Stop any impending connection parameters update.
+	Connection::stopPendingConnectionNegotiations();
 }
 
 

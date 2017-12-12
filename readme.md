@@ -86,7 +86,11 @@ Currently enable these modules:
     
     NRF_FSTORAGE_ENABLED 1	 required by advertising module
     
-Not using Peer Manager module (not interested in bonding BT devices.)
+Not using:
+
+    Peer Manager module (not interested in bonding BT devices.)
+    NRF_PWR_MGMT_ENABLED (was enabled in original, but why?)
+    FDS_ENABLED (was enabled in original, but why?)
     
     
 

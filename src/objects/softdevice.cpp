@@ -139,4 +139,15 @@ bool Softdevice::isEnabled() {
 }
 
 
+void Softdevice::disable() {
+	uint32_t   err_code;
+
+	// assert BLEProtocol already stopped
+
+	//NRFLog::log("Disable SD\n");
+	err_code = nrf_sdh_disable_request();
+	APP_ERROR_CHECK(err_code);
+
+	ASSERT(!nrf_sdh_is_enabled());
+}
 

@@ -23,7 +23,18 @@ BLE_ADVERTISING_DEF(adModuleInstance);
 #define APP_ADV_TIMEOUT_IN_SECONDS       180       /**< The advertising timeout in units of seconds. */
 
 
+
 namespace {
+
+/*
+ * Handle events from module.
+ *
+ * Events just indicate stage of advertising that module sequences through.
+ *
+ * BLE_ADV_EVT_IDLE indicates last stage of sequence.
+ * Alternatives are to sleep, or to restart advertising at start of sequence.
+ *
+ */
 static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
     // ret_code_t err_code;

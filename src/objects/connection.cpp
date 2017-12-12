@@ -56,4 +56,12 @@ void Connection::initParams() {
 
 }
 
+void Connection::stopPendingConnectionNegotiations() {
+	uint32_t    err_code;
+
+	err_code = ble_conn_params_stop();
+	APP_ERROR_CHECK(err_code);
+}
+
+
 
