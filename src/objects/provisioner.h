@@ -31,6 +31,9 @@ public:
 
 	/*
 	 * Called by BLE app when client provisions.
+	 *
+	 * Called from appHandler.cpp
+	 * i.e. events propagate from BLE resulting in ProvisioningCallback() call back to app.
 	 */
 	static void onProvisioned();
 };

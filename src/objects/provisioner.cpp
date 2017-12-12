@@ -14,8 +14,10 @@
 #include <cassert>
 
 // Implementation facade classes
+
 // SD supports many protocols
 #include "softdevice.h"
+
 // One of protocols is BLE
 #include "bleProtocol.h"
 
@@ -44,8 +46,12 @@ APP_TIMER_DEF(provisionElapsedTimerID);
 
 static void shutdown() {
 	// shutdown protocol and SD
+	// TODO stop advertising?
 	BLEProtocol::stop();
 	Softdevice::disable();
+	isProvisioningFlag = false;
+
+	assert(! Provisioner::isProvisioning());
 }
 
 
@@ -55,6 +61,8 @@ static void provisionElapsedTimerHandler(void* context) {
 	// Time elapsed without any client provisioning us
 
 	shutdown();
+
+	// Ensure not provisioning at time of callback
 	assert(! Provisioner::isProvisioning());
 	failCallback();
 	// assert oneshot timer not enabled
@@ -71,10 +79,18 @@ void Provisioner::onProvisioned() {
 	 * Semantics are one-shot:
 	 * Any provisioning ends session
 	 */
-	// TODO cancel timer
+
+	/*
+	 * We did not timeout, cancel timer.
+	 */
+	AppTimer::stop(provisionElapsedTimerID);
 
 	shutdown();
+
+	// Ensure not provisioning at time of callback
+	assert(! Provisioner::isProvisioning());
 	succeedCallback();
+	// assert hw resources not used by SD, can be used by app
 }
 
 

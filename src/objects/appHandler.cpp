@@ -1,9 +1,14 @@
 
 #include "appHandler.h"
+
+
 #include "nrfLog.h"
+#include "provisioner.h"
+
+//#include <string.h>  // memcpy
 
 
-#include <string.h>  // memcpy
+
 
 void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 
@@ -31,7 +36,12 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 
 		NRFLog::logInt(aWrite->data[0]);
 
-		// TODO, copy the value and do something with it
+		// TODO, copy and pass value
+		/*
+		 * Propagate up to app.  Here app is "provisioner."
+		 * Here, Provisioner will shutdown BLE.
+		 */
+		Provisioner::onProvisioned();
 	}
 	else {
 		/*
