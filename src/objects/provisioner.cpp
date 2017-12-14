@@ -52,11 +52,16 @@ static void shutdown() {
 	isProvisioningFlag = false;
 
 	assert(! Provisioner::isProvisioning());
+
+	assert(!Softdevice::isEnabled());
+	// Ensure not affect LF clock
+	assert(AppTimer::isClockRunning());
 }
 
 
 static void provisionElapsedTimerHandler(void* context) {
 	assert( Provisioner::isProvisioning() );
+	NRFLog::log("provisioning session timeout");
 
 	// Time elapsed without any client provisioning us
 
@@ -111,6 +116,10 @@ bool Provisioner::isProvisioning() {
 
 
 void Provisioner::start() {
+
+	// provisioning sessions are one at a time
+	assert(!isProvisioning());
+
 	// assert enabled
 	assert(succeedCallback != nullptr);
 
@@ -134,8 +143,8 @@ void Provisioner::start() {
 	*/
 	BLEProtocol::startAdvertising();
 
-	// Create timeout on provisioning service
-	AppTimer::start(provisionElapsedTimerID, 200);
+	// Start timeout on provisioning service
+	AppTimer::start(provisionElapsedTimerID, 1000);	// 200);	// 0.2 seconds
 
 	isProvisioningFlag = true;
 }

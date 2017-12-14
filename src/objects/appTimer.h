@@ -18,4 +18,10 @@ public:
 	static void createOneShot(app_timer_id_t const *, timerHandler);
 	static void start(app_timer_id_t, int);
 	static void stop(app_timer_id_t);
+
+	/*
+	 * Is required clock running?
+	 * Does not mean there are timers queued.
+	 */
+	static bool isClockRunning();
 };

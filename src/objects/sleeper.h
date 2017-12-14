@@ -1,6 +1,14 @@
 #pragma once
 
+#include <inttypes.h>
+
+
+
 class Sleeper {
-public:
+private:
 	static void sleepInBt();
+public:
+	static void sleepInBtUntilTimeout(uint32_t);
+
+
 };
