@@ -58,7 +58,7 @@
 //#include "advertiser.h"
 #include "adModule.h"
 #include "service.h"
-#include "connection.h"
+//#include "connection.h"
 #include "appTimer.h"
 #include "uuid.h"
 
@@ -103,18 +103,23 @@ void BLEProtocol::start() {
 	Uuid::init();	// Must precede AdModule and Service
 
 	AdModule::init();
+
 	// Creating service also creates its characteristics
 	uint32_t err_code = Service::init();
 	APP_ERROR_CHECK(err_code);
 
+#ifdef USE_CONNECTIONS_MODULE
 	AppTimer::init();
-	// Module requires app_timer.  AppTimer::init() call must precede??
+	// Connection Module requires app_timer.  AppTimer::init() call must precede??
 	Connection::initParams();
+#endif
 }
 
 void BLEProtocol::stop() {
 	// Stop any impending connection parameters update.
+#ifdef USE_CONNECTIONS_MODULE
 	Connection::stopPendingConnectionNegotiations();
+#endif
 }
 
 

@@ -1,6 +1,9 @@
 
 #pragma once
 
+
+#include "timerAdaptor.h"	// TimerInterruptReason
+
 /*
  * Provides provisioning over BLE, for a short duration.
  *
@@ -14,7 +17,20 @@ typedef void (*ProvisioningCallback)();
 
 class Provisioner {
 public:
-	static void enable(ProvisioningCallback, ProvisioningCallback );
+
+	/*
+	 * Callback from IRQ for Timer.
+	 */
+	static void provisionElapsedTimerHandler(TimerInterruptReason reason);
+
+	static void init(ProvisioningCallback, ProvisioningCallback );
+
+	/*
+	 * Caller might have clocks already started.
+	 * i.e. depends on whether provisioner is stand alone using TimerAdaptor
+	 * or provisioner is used by some app already started clocks.
+	 */
+	static void startClocks();
 
 	static void start();
 
@@ -36,4 +52,10 @@ public:
 	 * i.e. events propagate from BLE resulting in ProvisioningCallback() call back to app.
 	 */
 	static void onProvisioned();
+
+	/*
+	 * Do a provision session, sleeping in low power when idle.
+	 * Does not return until either provisioned or timeout expired.
+	 */
+	static void provisionWithSleep();
 };

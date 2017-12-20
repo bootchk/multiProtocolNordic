@@ -3,12 +3,13 @@
 #include <inttypes.h>
 
 
-
+/*
+ * Knows how to sleep for Provisioner.
+ * i.e. knows SD is enabled and coordinates with it
+ */
 class Sleeper {
 private:
-	static void sleepInBt();
+	static void sleepInSD();
 public:
-	static void sleepInBtUntilTimeout(uint32_t);
-
-
+	static void sleepInSDUntilTimeout(uint32_t);
 };

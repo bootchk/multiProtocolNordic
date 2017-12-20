@@ -9,7 +9,7 @@
 #include "app_error.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
-#include "app_timer.h"
+//#include "app_timer.h"
 
 #include <cassert>
 
@@ -22,16 +22,10 @@
 #include "bleProtocol.h"
 
 #include "nrfLog.h"
-#include "appTimer.h"
+//#include "appTimer.h"
+#include "sleeper.h"
+#include "timerAdaptor.h"
 
-/*
-#include "service.h"
-#include "adModule.h"
-#include "uuid.h"
-#include "gap.h"
-#include "gatt.h"
-#include "connection.h"
-*/
 
 
 namespace {
@@ -40,8 +34,6 @@ bool isProvisioningFlag = false;
 
 ProvisioningCallback succeedCallback = nullptr;
 ProvisioningCallback failCallback = nullptr;
-
-APP_TIMER_DEF(provisionElapsedTimerID);
 
 
 static void shutdown() {
@@ -54,15 +46,12 @@ static void shutdown() {
 	assert(! Provisioner::isProvisioning());
 
 	assert(!Softdevice::isEnabled());
+
 	// Ensure not affect LF clock
-	assert(AppTimer::isClockRunning());
+	// assert(AppTimer::isClockRunning());
 }
 
-
-static void provisionElapsedTimerHandler(void* context) {
-	assert( Provisioner::isProvisioning() );
-	NRFLog::log("provisioning session timeout");
-
+static void onTimerElapsed() {
 	// Time elapsed without any client provisioning us
 
 	shutdown();
@@ -72,6 +61,27 @@ static void provisionElapsedTimerHandler(void* context) {
 	failCallback();
 	// assert oneshot timer not enabled
 }
+
+}	// namespace
+
+
+
+
+void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
+	assert( Provisioner::isProvisioning() );
+	NRFLog::log("provisioning session timeout");
+
+	switch(reason) {
+	case OverflowOrOtherTimerCompare:
+		/*
+		 * Waked but Timer not expired.
+		 * Sleep again
+		 */
+		break;
+	case SleepTimerCompare:
+		onTimerElapsed();
+		break;
+	}
 
 }
 
@@ -88,7 +98,7 @@ void Provisioner::onProvisioned() {
 	/*
 	 * We did not timeout, cancel timer.
 	 */
-	AppTimer::stop(provisionElapsedTimerID);
+	TimerAdaptor::stop();
 
 	shutdown();
 
@@ -100,13 +110,19 @@ void Provisioner::onProvisioned() {
 
 
 
-void Provisioner::enable(ProvisioningCallback aSucceedCallback, ProvisioningCallback aFailCallback) {
+void Provisioner::init(ProvisioningCallback aSucceedCallback, ProvisioningCallback aFailCallback) {
 	succeedCallback = aSucceedCallback;
 	failCallback = aFailCallback;
 
-	AppTimer::createOneShot(&provisionElapsedTimerID, provisionElapsedTimerHandler);
+	TimerAdaptor::create(provisionElapsedTimerHandler);
 
 	assert(! Provisioner::isProvisioning());	// enabled but not started
+}
+
+
+void Provisioner::startClocks(){
+	// delegate
+	TimerAdaptor::startClocks();
 }
 
 
@@ -117,6 +133,7 @@ bool Provisioner::isProvisioning() {
 
 void Provisioner::start() {
 
+
 	// provisioning sessions are one at a time
 	assert(!isProvisioning());
 
@@ -126,34 +143,18 @@ void Provisioner::start() {
 	// SD
 	Softdevice::enable();
 
-	// TODO bleProtocol
 	BLEProtocol::start();
 
-	/*
-	These modules:
-
-	GAP::initParams();
-	Gatt::init();
-	Uuid::init();
-	AdModule::init();
-	// Creating service also creates its characteristics
-	Service::init();
-	Connection::initParams();
-	AdModule::startAdvertising(false);
-	*/
 	BLEProtocol::startAdvertising();
-
-	// Start timeout on provisioning service
-	AppTimer::start(provisionElapsedTimerID, 1000);	// 200);	// 0.2 seconds
 
 	isProvisioningFlag = true;
 }
 
 
-void Provisioner::sleep() {
-	// Not legal to sleep via Provisioner when not provisioning
-	assert(isProvisioning());
 
-	ret_code_t err_code = sd_app_evt_wait();
-	APP_ERROR_CHECK(err_code);
+void Provisioner::provisionWithSleep() {
+	NRFLog::log("Provisioner start");
+	start();
+	NRFLog::log("Provisioner sleep using Sleeper");
+	Sleeper::sleepInSDUntilTimeout(500);
 }
