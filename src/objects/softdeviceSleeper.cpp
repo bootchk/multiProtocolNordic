@@ -1,7 +1,5 @@
 
-#include "sleeper.h"
-
-// Implementation: NRF_SDK
+#include <softdeviceSleeper.h>
 #include "nrf_sdm.h"	// in /softdevice/s132/headers  // nrf_clock_lf_cfg_t
 #include "app_error.h"
 
@@ -14,7 +12,7 @@
 #include <cassert>
 
 
-void Sleeper::sleepInSD() {
+void SoftdeviceSleeper::sleepInSD() {
 	uint32_t err_code;
 
 	// Sleep using SoftDevice API when SD active.
@@ -22,7 +20,7 @@ void Sleeper::sleepInSD() {
 	APP_ERROR_CHECK(err_code);
 }
 
-void Sleeper::sleepInSDUntilTimeout(uint32_t timeout) {
+void SoftdeviceSleeper::sleepInSDUntilTimeout(uint32_t timeout) {
 
 	// Start timeout on provisioning service
 	TimerAdaptor::start(timeout, Provisioner::provisionElapsedTimerHandler);

@@ -45,7 +45,7 @@ void TimerAdaptor::start(uint32_t timeout, AlarmHandler onTimeoutCallback) {
 
 	NRFLog::log("start timer");
 	Timer::start(
-			TimerIndex::First,	// First timer not in use by SleepSync
+			TimerIndex::First,	// assert first timer not in use by SleepSync
 			timeout,
 			onTimeoutCallback);
 }

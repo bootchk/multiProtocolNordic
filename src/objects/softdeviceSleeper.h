@@ -4,10 +4,9 @@
 
 
 /*
- * Knows how to sleep for Provisioner.
- * i.e. knows SD is enabled and coordinates with it
+ * Knows how to sleep for Provisioner i.e. knows SD is enabled and coordinates with it
  */
-class Sleeper {
+class SoftdeviceSleeper {
 private:
 	static void sleepInSD();
 public:

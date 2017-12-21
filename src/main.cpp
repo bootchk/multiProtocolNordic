@@ -23,7 +23,7 @@ int main(void)
         // TODO
 
 		NRFLog::log("sleep");
-		Sleeper::sleepInBt();
+		SoftdeviceSleeper::sleepInBt();
 		NRFLog::log("loop");
 	}
 }

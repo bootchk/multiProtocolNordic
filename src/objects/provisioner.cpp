@@ -1,6 +1,7 @@
 
 
 
+#include <softdeviceSleeper.h>
 #include "provisioner.h"
 
 // Implementation
@@ -23,7 +24,6 @@
 
 #include "nrfLog.h"
 //#include "appTimer.h"
-#include "sleeper.h"
 #include "timerAdaptor.h"
 
 
@@ -156,5 +156,5 @@ void Provisioner::provisionWithSleep() {
 	NRFLog::log("Provisioner start");
 	start();
 	NRFLog::log("Provisioner sleep using Sleeper");
-	Sleeper::sleepInSDUntilTimeout(500);
+	SoftdeviceSleeper::sleepInSDUntilTimeout(500);
 }
