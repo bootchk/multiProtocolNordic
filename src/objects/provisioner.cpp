@@ -132,7 +132,7 @@ bool Provisioner::isProvisioning() {
 
 
 void Provisioner::start() {
-
+	NRFLog::log("Provisioner start");
 
 	// provisioning sessions are one at a time
 	assert(!isProvisioning());
@@ -153,8 +153,9 @@ void Provisioner::start() {
 
 
 void Provisioner::provisionWithSleep() {
-	NRFLog::log("Provisioner start");
+
 	start();
+
 	NRFLog::log("Provisioner sleep using Sleeper");
 	SoftdeviceSleeper::sleepInSDUntilTimeout(500);
 }

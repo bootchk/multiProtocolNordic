@@ -12,7 +12,7 @@
 #include <cassert>
 
 
-void SoftdeviceSleeper::sleepInSD() {
+void SoftdeviceSleeper::sleepInSDUntilAnyEvent() {
 	uint32_t err_code;
 
 	// Sleep using SoftDevice API when SD active.
@@ -22,19 +22,24 @@ void SoftdeviceSleeper::sleepInSD() {
 
 void SoftdeviceSleeper::sleepInSDUntilTimeout(uint32_t timeout) {
 
+	/*
+	 *  Not meaningful to call when SD already disabled.
+	 *  A warning: we expect SD to be enabled, but returns immediately if not enabled.
+	 */
+	if (not Softdevice::isEnabled()) {
+		NRFLog::log("??? sleep called without SD disabled");
+	}
+
 	// Start timeout on provisioning service
 	TimerAdaptor::start(timeout, Provisioner::provisionElapsedTimerHandler);
 
 	//AppTimer::start(provisionElapsedTimerID, 1000);	// 200);	// 0.2 seconds
 
-	// Not meaningful to call when SD already disabled
-	assert(Softdevice::isEnabled());
-
 	/*
 	 * This design depends on all relevant events disabling SD.
 	 */
 	while (Softdevice::isEnabled()) {
-		sleepInSD();
+		sleepInSDUntilAnyEvent();
 
 		NRFLog::log("Wake from sleepInSD");
 		/*
@@ -60,5 +65,7 @@ void SoftdeviceSleeper::sleepInSDUntilTimeout(uint32_t timeout) {
 		 */
 	}
 
+	// ensure
+	assert(not Softdevice::isEnabled());
 }
 

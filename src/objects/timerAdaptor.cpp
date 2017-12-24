@@ -12,12 +12,35 @@
 
 
 /*
- * When Using AppTimer implementation
+ * Define which implementation is adapted
  */
+// Adapt null implementation.
+// Use to simplify building: some objects e.g. Provisioner referenced but not called
+// Provisioner calls TimerAdapter
+// e.g. for main1
+//#define ADAPT_NULL
+
+// Nordic app_timer via AppTimer facade
+//#define ADAPT_APP_TIMER
+
+// radioSoC lib Timer
+#define ADAPT_TIMER
+
+
+
+#ifdef ADAPT_NULL
+void TimerAdaptor::stop() { }
+#endif
+
+
+#ifdef ADAPT_APP_TIMER
 //APP_TIMER_DEF(provisionElapsedTimerID);
 // AppTimer::stop(provisionElapsedTimerID);
 //AppTimer::createOneShot(&provisionElapsedTimerID, provisionElapsedTimerHandler);
+#endif
 
+
+#ifdef ADAPT_TIMER
 void TimerAdaptor::startClocks() {
 
 #ifdef OLD
@@ -54,3 +77,6 @@ void TimerAdaptor::start(uint32_t timeout, AlarmHandler onTimeoutCallback) {
 void TimerAdaptor::stop() {
 	Timer::cancel(TimerIndex::First);
 }
+
+#endif
+
