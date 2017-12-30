@@ -86,25 +86,26 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
 }
 
 
-
+/*
+ * Semantics are one-shot: any provisioning ends session.
+ *
+ * Note this is called from SD, from a handler.
+ * You can't shutdown SD at such a time?
+ * Because it returns to the SD's chain of handlers.
+ */
 void Provisioner::onProvisioned() {
 	assert(isProvisioning());
 
-	/*
-	 * Semantics are one-shot:
-	 * Any provisioning ends session
-	 */
-
-	/*
-	 * We did not timeout, cancel timer.
-	 */
+	// We did not timeout, cancel timer.
 	TimerAdaptor::stop();
 
 	shutdown();
 
 	// Ensure not provisioning at time of callback
 	assert(! Provisioner::isProvisioning());
+
 	succeedCallback();
+
 	// assert hw resources not used by SD, can be used by app
 }
 
@@ -157,5 +158,5 @@ void Provisioner::provisionWithSleep() {
 	start();
 
 	NRFLog::log("Provisioner sleep using Sleeper");
-	SoftdeviceSleeper::sleepInSDUntilTimeout(500);
+	SoftdeviceSleeper::sleepInSDUntilTimeout(Provisioner::SleepDuration);
 }

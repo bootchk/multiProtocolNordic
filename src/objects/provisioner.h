@@ -18,6 +18,11 @@ typedef void (*ProvisioningCallback)();
 class Provisioner {
 public:
 
+	// Max is 24-bit i.e. 17million i.e 51 seconds
+	static const int SleepDuration = 0xfffff0;	// units ticks of 30uSec
+
+
+
 	/*
 	 * Callback from IRQ for Timer.
 	 */
@@ -32,6 +37,12 @@ public:
 	 */
 	static void startClocks();
 
+	/*
+	 * Start provisioning service.
+	 * Service is separate task, this returns immediately.
+	 * Service advertises, accepts connections, and writes.
+	 * Callbacks when writes are accepted.
+	 */
 	static void start();
 
 	/*
@@ -56,6 +67,7 @@ public:
 	/*
 	 * Do a provision session, sleeping in low power when idle.
 	 * Does not return until either provisioned or timeout expired.
+	 * Timeout is fixed constant.
 	 */
 	static void provisionWithSleep();
 };
