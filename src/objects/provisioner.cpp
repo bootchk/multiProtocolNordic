@@ -10,7 +10,6 @@
 #include "app_error.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
-//#include "app_timer.h"
 
 #include <cassert>
 
@@ -23,7 +22,6 @@
 #include "bleProtocol.h"
 
 #include "nrfLog.h"
-//#include "appTimer.h"
 #include "timerAdaptor.h"
 
 
@@ -35,8 +33,54 @@ bool isProvisioningFlag = false;
 ProvisioningCallback succeedCallback = nullptr;
 ProvisioningCallback failCallback = nullptr;
 
+}	// namespace
 
-static void shutdown() {
+
+
+
+
+
+
+
+
+
+
+
+void Provisioner::init(ProvisioningCallback aSucceedCallback, ProvisioningCallback aFailCallback) {
+	succeedCallback = aSucceedCallback;
+	failCallback = aFailCallback;
+
+	TimerAdaptor::create(provisionElapsedTimerHandler);
+
+	assert(! Provisioner::isProvisioning());	// enabled but not started
+}
+
+
+
+/*
+ * start() and shutdown() should be mirror images
+ */
+
+void Provisioner::start() {
+	NRFLog::log("Provisioner start");
+
+	// provisioning sessions are one at a time
+	assert(!isProvisioning());
+
+	// assert self initialized
+	assert(succeedCallback != nullptr);
+
+	Softdevice::enable();
+
+	BLEProtocol::start();
+
+	BLEProtocol::startAdvertising();
+
+	isProvisioningFlag = true;
+}
+
+void Provisioner::shutdown() {
+	NRFLog::log("Provisioner shutdown");
 	// shutdown protocol and SD
 	// TODO stop advertising?
 	BLEProtocol::stop();
@@ -50,19 +94,6 @@ static void shutdown() {
 	// Ensure not affect LF clock
 	// assert(AppTimer::isClockRunning());
 }
-
-static void onTimerElapsed() {
-	// Time elapsed without any client provisioning us
-
-	shutdown();
-
-	// Ensure not provisioning at time of callback
-	assert(! Provisioner::isProvisioning());
-	failCallback();
-	// assert oneshot timer not enabled
-}
-
-}	// namespace
 
 
 
@@ -86,10 +117,15 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
 }
 
 
+
+
 /*
- * Semantics are one-shot: any provisioning ends session.
- *
- * Note this is called from SD, from a handler.
+ * onProvisioned() and onTimerElapsed() are two reasons to end a session
+ * Should be similar implementations
+ */
+
+/*
+ * Called from SD, from a handler.
  * You can't shutdown SD at such a time?
  * Because it returns to the SD's chain of handlers.
  */
@@ -99,26 +135,26 @@ void Provisioner::onProvisioned() {
 	// We did not timeout, cancel timer.
 	TimerAdaptor::stop();
 
-	shutdown();
+	/*
+	 * Semantics are one-shot: any provisioning ends sleep and session.
+	 */
+	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Canceled);
 
-	// Ensure not provisioning at time of callback
-	assert(! Provisioner::isProvisioning());
-
+	// Tell app
 	succeedCallback();
+}
 
-	// assert hw resources not used by SD, can be used by app
+void Provisioner::onTimerElapsed() {
+	// Time elapsed without any client provisioning us
+	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::TimedOut);
+
+	failCallback();
+	// assert oneshot timer not enabled
 }
 
 
 
-void Provisioner::init(ProvisioningCallback aSucceedCallback, ProvisioningCallback aFailCallback) {
-	succeedCallback = aSucceedCallback;
-	failCallback = aFailCallback;
 
-	TimerAdaptor::create(provisionElapsedTimerHandler);
-
-	assert(! Provisioner::isProvisioning());	// enabled but not started
-}
 
 
 void Provisioner::startClocks(){
@@ -132,31 +168,20 @@ bool Provisioner::isProvisioning() {
 }
 
 
-void Provisioner::start() {
-	NRFLog::log("Provisioner start");
-
-	// provisioning sessions are one at a time
-	assert(!isProvisioning());
-
-	// assert enabled
-	assert(succeedCallback != nullptr);
-
-	// SD
-	Softdevice::enable();
-
-	BLEProtocol::start();
-
-	BLEProtocol::startAdvertising();
-
-	isProvisioningFlag = true;
-}
 
 
 
 void Provisioner::provisionWithSleep() {
+	// Clear flag before starting session, it may succeed before we get to sleep
+	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Cleared);
 
 	start();
+	NRFLog::log("Provisioner sleeps");
+	SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(Provisioner::ProvisioningSessionDuration);
 
-	NRFLog::log("Provisioner sleep using Sleeper");
-	SoftdeviceSleeper::sleepInSDUntilTimeout(Provisioner::SleepDuration);
+	assert(SoftdeviceSleeper::getReasonForSDWake() != ReasonForSDWake::Cleared);
+
+	shutdown();
+	// assert hw resources not used by SD, can be used by app
+	assert(! Provisioner::isProvisioning());
 }

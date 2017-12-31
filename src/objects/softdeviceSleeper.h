@@ -3,6 +3,16 @@
 #include <inttypes.h>
 
 
+enum class ReasonForSDWake {
+	Cleared,
+	TimedOut,
+	Canceled
+};
+
+
+
+
+
 /*
  * Knows how to sleep for Provisioner i.e. knows SD is enabled and coordinates with it
  */
@@ -21,5 +31,10 @@ public:
 	 *
 	 * If SD is not enabled when called, returns immediately.
 	 */
-	static void sleepInSDUntilTimeout(uint32_t duration);
+	static void sleepInSDUntilTimeoutOrCanceled(uint32_t duration);
+
+	static void cancelSleep();
+
+	static ReasonForSDWake getReasonForSDWake();
+	static void setReasonForSDWake(ReasonForSDWake reason);
 };

@@ -16,12 +16,16 @@ typedef void (*ProvisioningCallback)();
 
 
 class Provisioner {
+private:
+	static void shutdown();
+	static void onTimerElapsed();
+
 public:
 
 	// Max is 24-bit i.e. 17million i.e 51 seconds
-	static const int SleepDuration = 0xfffff0;	// units ticks of 30uSec
-
-
+	// units ticks of 30uSec
+	static const int ProvisioningSessionDuration = 0xfffff0;	// 50 s
+	//static const int ProvisioningSessionDuration = 800000;		// 2.4s
 
 	/*
 	 * Callback from IRQ for Timer.
@@ -68,6 +72,7 @@ public:
 	 * Do a provision session, sleeping in low power when idle.
 	 * Does not return until either provisioned or timeout expired.
 	 * Timeout is fixed constant.
+	 * Ensures SD disabled on return.
 	 */
 	static void provisionWithSleep();
 };

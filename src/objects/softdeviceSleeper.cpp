@@ -11,6 +11,12 @@
 
 #include <cassert>
 
+namespace {
+	ReasonForSDWake reasonForSDWake;
+}
+
+
+
 
 void SoftdeviceSleeper::sleepInSDUntilAnyEvent() {
 	uint32_t err_code;
@@ -20,25 +26,28 @@ void SoftdeviceSleeper::sleepInSDUntilAnyEvent() {
 	APP_ERROR_CHECK(err_code);
 }
 
-void SoftdeviceSleeper::sleepInSDUntilTimeout(uint32_t timeout) {
+void SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(uint32_t timeout) {
 
 	/*
 	 *  Not meaningful to call when SD already disabled.
 	 *  A warning: we expect SD to be enabled, but returns immediately if not enabled.
 	 */
 	if (not Softdevice::isEnabled()) {
-		NRFLog::log("??? sleep called without SD disabled");
+		NRFLog::log("??? sleep called with SD disabled");
 	}
+
+	/*
+	 * Caller must setReasonForSDWake before enabling SD.
+	 * The provisioning might have already succeeded and setReasonForSDWake == Canceled
+	 */
 
 	// Start timeout on provisioning service
 	TimerAdaptor::start(timeout, Provisioner::provisionElapsedTimerHandler);
 
-	//AppTimer::start(provisionElapsedTimerID, 1000);	// 200);	// 0.2 seconds
-
 	/*
-	 * This design depends on all relevant events disabling SD.
+	 * Might return immediately if provisioning already succeeded and setReasonForSDWake == Canceled
 	 */
-	while (Softdevice::isEnabled()) {
+	while (reasonForSDWake == ReasonForSDWake::Cleared) {
 		sleepInSDUntilAnyEvent();
 
 		NRFLog::log("Wake from sleepInSD");
@@ -64,8 +73,17 @@ void SoftdeviceSleeper::sleepInSDUntilTimeout(uint32_t timeout) {
 		 * execution resumes here.
 		 */
 	}
+}
 
-	// ensure
-	assert(not Softdevice::isEnabled());
+
+void SoftdeviceSleeper::cancelSleep() {
+	setReasonForSDWake(ReasonForSDWake::Canceled);
+}
+
+ReasonForSDWake  SoftdeviceSleeper::getReasonForSDWake() {
+	return reasonForSDWake;
+}
+void SoftdeviceSleeper:: setReasonForSDWake(ReasonForSDWake reason) {
+	reasonForSDWake = reason;
 }
 
