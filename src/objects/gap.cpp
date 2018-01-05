@@ -81,7 +81,7 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 		// TODO, if connection successfully set characteristic,  shutdown
 		// else if not timed out, advertise again.
 		// original advertising_start();
-		Advertiser::startAdvertising();
+		//Advertiser::startAdvertising();
 
 		NRFLog::log("GAP disconnected");
 		// original code does not do this

@@ -1,26 +1,10 @@
 
-
-
-#include <softdeviceSleeper.h>
 #include "provisioner.h"
-
-// Implementation
-
-// Implementation Nordic SDK
-#include "app_error.h"
-#include "nrf_sdh.h"
-#include "nrf_sdh_soc.h"
-
 #include <cassert>
 
 // Implementation facade classes
-
-// SD supports many protocols
-#include "softdevice.h"
-
-// One of protocols is BLE
-#include "bleProtocol.h"
-
+#include <softdeviceSleeper.h>
+#include "protocolStack.h"
 #include "nrfLog.h"
 #include "timerAdaptor.h"
 
@@ -34,13 +18,6 @@ ProvisioningCallback succeedCallback = nullptr;
 ProvisioningCallback failCallback = nullptr;
 
 }	// namespace
-
-
-
-
-
-
-
 
 
 
@@ -70,26 +47,21 @@ void Provisioner::start() {
 	// assert self initialized
 	assert(succeedCallback != nullptr);
 
-	Softdevice::enable();
-
-	BLEProtocol::start();
-
-	BLEProtocol::startAdvertising();
+	ProtocolStack::startup();
 
 	isProvisioningFlag = true;
 }
 
 void Provisioner::shutdown() {
 	NRFLog::log("Provisioner shutdown");
-	// shutdown protocol and SD
-	// TODO stop advertising?
-	BLEProtocol::stop();
-	Softdevice::disable();
+
+	ProtocolStack::shutdown();
+
 	isProvisioningFlag = false;
 
 	assert(! Provisioner::isProvisioning());
 
-	assert(!Softdevice::isEnabled());
+	assert(!ProtocolStack::isEnabled());
 
 	// Ensure not affect LF clock
 	// assert(AppTimer::isClockRunning());

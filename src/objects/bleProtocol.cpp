@@ -46,20 +46,15 @@
 #include "app_error.h"
 
 
-
-
-
-
 // classes interface to softdevice
 #include "softdevice.h"
 #include "gatt.h"
 #include "gap.h"
-//#include "advertisement.h"
-//#include "advertiser.h"
-#include "adModule.h"
+
+#include "advertiser.h"
 #include "service.h"
 //#include "connection.h"
-#include "appTimer.h"
+
 #include "uuid.h"
 
 
@@ -73,36 +68,16 @@ void BLEProtocol::start() {
 	// Softdevice does not require app_timer (it uses its own timers?)
 	// but some modules (Connection) do?
 
-#ifdef OLD
-	Uuid::init();
-
-	GAP::initParams();
-	Gatt::init();
-
-	// Prepare for advertising
-	Advertisement::init();
-	Advertiser::init();
-
-	uint32_t err_code = Service::init();
-	APP_ERROR_CHECK(err_code);
-
-	//Connection::initParams(Service::data());
-	/*
-	 No connection negotiation.
-	 No security.
-	sec_params_init();
-	*/
-#endif
-
 	/*
 	 * This sequence is as found in ble_app_template.
+	 * Except it omits stuff like security?
 	 */
 	GAP::initParams();
 	Gatt::init();
 
 	Uuid::init();	// Must precede AdModule and Service
 
-	AdModule::init();
+	Advertiser::init();
 
 	// Creating service also creates its characteristics
 	uint32_t err_code = Service::init();
@@ -115,6 +90,7 @@ void BLEProtocol::start() {
 #endif
 }
 
+
 void BLEProtocol::stop() {
 	// Stop any impending connection parameters update.
 #ifdef USE_CONNECTIONS_MODULE
@@ -124,9 +100,12 @@ void BLEProtocol::stop() {
 
 
 void BLEProtocol::startAdvertising() {
-	AdModule::startAdvertising(false);
+	Advertiser::startAdvertising(false);
 }
+
+
+// not used
 void BLEProtocol::stopAdvertising() {
-	AdModule::stopAdvertising(false);
+	Advertiser::stopAdvertising(false);
 }
 
