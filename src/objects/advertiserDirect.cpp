@@ -1,4 +1,5 @@
 
+#include "advertiser.h"
 #include "advertiserDirect.h"
 
 #include "advertisement.h"
@@ -15,21 +16,8 @@ namespace {
 static ble_gap_adv_params_t advertisingParams;	// Created by init(), used by start()
 }
 
-#define APP_BLE_CONN_CFG_TAG                1      /**< A tag for a Bluetooth stack configuration. */
 
 
-
-/*
- * Duration between advertisements.
- * units of 0.625 ms. This value corresponds to 25 ms).
- */
-#define APP_ADV_INTERVAL                 40
-
-/*
- * How long to wait after a response from a central until we assume central quit, and resume advertising?
- * units of seconds.
- */
-#define APP_ADV_TIMEOUT_IN_SECONDS       180
 
 
 namespace {
@@ -50,6 +38,11 @@ void initParams() {
 }
 
 void DirectAdvertiser::init() {
+	/*
+	 * Init the advertisement AND params of advertising behavior
+	 */
+	Advertisement::init();
+
 	initParams();
 }
 

@@ -1,4 +1,5 @@
 
+#include "advertiser.h"
 #include "adModule.h"
 
 
@@ -11,14 +12,11 @@
 // facade
 #include "uuid.h"
 
+// Use macro to create instance
 // TODO does this work in cpp or need extern "C" ?
 BLE_ADVERTISING_DEF(adModuleInstance);
 
 
-#define APP_BLE_CONN_CFG_TAG                1      /**< A tag for a Bluetooth stack configuration. */
-
-#define APP_ADV_INTERVAL                 40        /**< The advertising interval (in units of 0.625 ms. This value corresponds to 25 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS       180       /**< The advertising timeout in units of seconds. */
 
 
 

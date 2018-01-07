@@ -182,6 +182,10 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 		// assume SD handled this internally
 		break;
 
+	case BLE_GAP_EVT_TIMEOUT:	// 0x1B
+		NRFLog::log("GAP advertising timeout");
+		break;
+
 	default:
 		// No implementation needed?
 

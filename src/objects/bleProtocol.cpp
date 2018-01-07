@@ -18,10 +18,6 @@
 // Add path to included linker file
 // Project Properties>C++ Build>Settings>Tool Settings>Cross ARM C Linker>Libraries-> Library search path>Add...
 
-
-
-
-
 // in libraries/util
 // #include "nordic_common.h"
 
@@ -38,11 +34,10 @@
 // s132 is for BLE central/peripheral without ANT
 //#include "nrf_sdm.h"	// in /softdevice/s132/headers
 
+
+
 #include "bleProtocol.h"
 
-//#include "ble.h"
-//#include "ble_srv_common.h"	// in ble/common
-//#include "ble_advdata.h"
 #include "app_error.h"
 
 
@@ -62,7 +57,7 @@
 
 void BLEProtocol::start() {
 
-	// caller enabled SD
+	// require caller enabled SD
 	assert(Softdevice::isEnabled());
 
 	// Softdevice does not require app_timer (it uses its own timers?)
