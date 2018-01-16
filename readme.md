@@ -17,7 +17,11 @@ and integrate with an app that uses a proprietary protocol most of the time.
 Status
 -
 
- work in progress, not working.
+ work in progress, not working.  The problem here is in the Eclipse build configurations, trying to mimic Nordic makefiles.
+ 
+ But the objects/ dir is correct and used by bleAppTemplate and libBLEProvisionee, which do work.
+ Those projects use Nordic Makefiles or CMake
+ 
 
 Initially derived from NRF SDK examples/multiprotocol/ble_app_gzll
 Modified to be object oriented: more understandable and modifiable.
