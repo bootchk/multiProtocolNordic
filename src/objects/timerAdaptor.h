@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 // lib radioSoC
-#include <timer.h>    // TimerInterruptReason
+#include <clock/timer.h>    // TimerInterruptReason
 
 
 typedef void (*AlarmHandler)(TimerInterruptReason reason);

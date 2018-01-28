@@ -22,10 +22,20 @@ private:
 
 public:
 
-	// Max is 24-bit i.e. 17million i.e 51 seconds
-	// units ticks of 30uSec
-	static const int ProvisioningSessionDuration = 0xfffff0;	// 50 s
+	/*
+	 * units ticks of 30uSec
+	 *
+	 * Max is 24-bit i.e. 17million i.e 51 seconds
+	 *
+	 * Min is:
+	 *    time to advertise on 3 channels (about 1mSec)
+	 *    time to listen for client (???)
+	 *
+	 * This does NOT include the time to startup and shutdown the protocol stack.
+	 */
+	// static const int ProvisioningSessionDuration = 0xfffff0;	// 50 s
 	//static const int ProvisioningSessionDuration = 800000;		// 2.4s
+	static const int ProvisioningSessionDuration = 70;	// 2.1 mSec
 
 	/*
 	 * Callback from IRQ for Timer.

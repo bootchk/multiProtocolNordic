@@ -6,8 +6,8 @@
 #include "nrfLog.h"
 
 // lib radioSoC
-#include "timer.h"
-#include "clockFacilitator.h"
+// timerAdaptor.h already #include "timer.h"
+#include "clock/clockFacilitator.h"
 
 
 
