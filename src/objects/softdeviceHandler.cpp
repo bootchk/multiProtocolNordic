@@ -9,8 +9,10 @@
 #include "service.h"
 #include "gap.h"
 #include "appHandler.h"
-#include "nrfLog.h"
 
+
+// #include "nrfLog.h"
+#include "services/logger.h"
 
 // ???
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
@@ -39,7 +41,7 @@
 
 void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 {
-	NRFLog::log("bleEvent\n");
+	RTTLogger::log("bleEvent\n");
 
 #ifdef STRATEGY_1
 	// !!! original code passes the context, to be cast
@@ -57,7 +59,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 	switch (bleEvent->header.evt_id)
 	{
 	case BLE_GAP_EVT_DISCONNECTED:
-		NRFLog::log("Disconnected.");
+		RTTLogger::log("Disconnected.");
 
 		// app logic
 		// LED indication will be changed when advertising starts.
@@ -70,7 +72,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 		break;
 
 	case BLE_GAP_EVT_CONNECTED:
-		NRFLog::log("Connected.");
+		RTTLogger::log("Connected.");
 		// app logic
 		//err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
 		//APP_ERROR_CHECK(err_code);
@@ -84,7 +86,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 #ifndef S140
 	case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
 	{
-		NRFLog::log("PHY update request.");
+		RTTLogger::log("PHY update request.");
 		ble_gap_phys_t const phys =
 		{
 				tx_phys : BLE_GAP_PHY_AUTO,
@@ -97,13 +99,13 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 
 	case BLE_GATTC_EVT_TIMEOUT:
 		// Disconnect on GATT Client timeout event.
-		NRFLog::log("GATT Client Timeout.");
+		RTTLogger::log("GATT Client Timeout.");
 		GAP::disconnect(bleEvent);
 		break;
 
 	case BLE_GATTS_EVT_TIMEOUT:
 		// Disconnect on GATT Server timeout event.
-		NRFLog::log("GATT Server Timeout.");
+		RTTLogger::log("GATT Server Timeout.");
 
 		// Tell facade, it will tell SD and another event will come from SD
 		GAP::disconnect(bleEvent);
@@ -112,14 +114,14 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 	case BLE_EVT_USER_MEM_REQUEST:
 		// Internal
 		// see queued writes
-		NRFLog::log("User mem req.");
+		RTTLogger::log("User mem req.");
 		err_code = sd_ble_user_mem_reply(bleEvent->evt.gattc_evt.conn_handle, NULL);
 		APP_ERROR_CHECK(err_code);
 		break;
 
 	case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
 	{
-		NRFLog::log("gatts rw auth req.");
+		RTTLogger::log("gatts rw auth req.");
 		ble_gatts_evt_rw_authorize_request_t  req;
 		ble_gatts_rw_authorize_reply_params_t auth_reply;
 
@@ -153,7 +155,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 	 * some don't need to be handled.
 	 */
 	case BLE_GATTS_EVT_WRITE:	// 0x50
-		NRFLog::log("gatts write\n");
+		RTTLogger::log("gatts write\n");
 
 		// TODO filter writes to internal characteristics here?
 		// Not all writes are to characteristics the app owns
@@ -164,7 +166,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 		break;
 
 	case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:	// 0x55
-		NRFLog::log("GATT server MTU req");
+		RTTLogger::log("GATT server MTU req");
 
 		// For now, assume SD handles internally
 
@@ -178,19 +180,19 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 		break;
 
 	case BLE_GAP_EVT_CONN_PARAM_UPDATE:	// 0x12
-		NRFLog::log("GAP parm update");
+		RTTLogger::log("GAP parm update");
 		// assume SD handled this internally
 		break;
 
 	case BLE_GAP_EVT_TIMEOUT:	// 0x1B
-		NRFLog::log("GAP advertising timeout");
+		RTTLogger::log("GAP advertising timeout");
 		break;
 
 	default:
 		// No implementation needed?
 
-		NRFLog::log("event not handled");
-		NRFLog::logInt(bleEvent->header.evt_id);
+		RTTLogger::log("event not handled");
+		RTTLogger::log((uint32_t)bleEvent->header.evt_id);
 		break;
 	}
 

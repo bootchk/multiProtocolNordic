@@ -2,11 +2,12 @@
 #include "appHandler.h"
 
 
-#include "nrfLog.h"
+
 #include "provisioner.h"
 
 // use logger from radioSoC library
 #include "services/logger.h"
+//#include "nrfLog.h"
 
 
 
@@ -25,7 +26,7 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 	 * Since app is not interested.
 	 */
 	if (aWrite->uuid.type == 1 or aWrite->uuid.type == 1) {
-		NRFLog::log("Ignoring write to std BT or unknown characteristic");
+		RTTLogger::log("Ignoring write to std BT or unknown characteristic");
 	}
 
 	/*
@@ -35,8 +36,8 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 	 * Type 2 is UUID of service?
 	 */
 	else if (aWrite->uuid.type == 3 and aWrite->len ==1 ) {
-		NRFLog::log("Value written to my characteristic");
-		NRFLog::logInt(aWrite->data[0]);
+		RTTLogger::log("Value written to my characteristic");
+		RTTLogger::log((uint8_t)aWrite->data[0]);
 
 		RTTLogger::log("Value written to my characteristic");
 
@@ -53,7 +54,7 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 		 * Not a standard or unknown characteristic,
 		 * but not one that my app has defined.
 		 */
-		NRFLog::log("Write to unrecognized characteristic.");
+		RTTLogger::log("Write to unrecognized characteristic.");
 
 	}
 }
@@ -61,11 +62,13 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 
 void AppHandler::onConnect() {
 	// App doesn't care about connections
+	RTTLogger::log("Connected.\n");
 }
 
 
 void AppHandler::onDisconnect(){
 	// App doesn't care about disconnections
+	RTTLogger::log("Disconnected.\n");
 }
 
 // TODO app should care about advertisement timeouts.
