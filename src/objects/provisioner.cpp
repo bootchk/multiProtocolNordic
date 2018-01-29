@@ -13,6 +13,7 @@
 namespace {
 
 bool isProvisioningFlag = false;
+bool provisioningSessionResult = false;
 
 ProvisioningCallback succeedCallback = nullptr;
 ProvisioningCallback failCallback = nullptr;
@@ -114,6 +115,8 @@ void Provisioner::onProvisioned() {
 
 	// Tell app
 	succeedCallback();
+
+	provisioningSessionResult = true;
 }
 
 void Provisioner::onTimerElapsed() {
@@ -122,6 +125,8 @@ void Provisioner::onTimerElapsed() {
 
 	failCallback();
 	// assert oneshot timer not enabled
+
+	provisioningSessionResult = false;
 }
 
 
@@ -143,7 +148,7 @@ bool Provisioner::isProvisioning() {
 
 
 
-void Provisioner::provisionWithSleep() {
+bool Provisioner::provisionWithSleep() {
 	// Clear flag before starting session, it may succeed before we get to sleep
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Cleared);
 
@@ -156,4 +161,5 @@ void Provisioner::provisionWithSleep() {
 	shutdown();
 	// assert hw resources not used by SD, can be used by app
 	assert(! Provisioner::isProvisioning());
+	return provisioningSessionResult;
 }

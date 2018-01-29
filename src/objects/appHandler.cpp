@@ -5,12 +5,15 @@
 #include "nrfLog.h"
 #include "provisioner.h"
 
-//#include <string.h>  // memcpy
+// use logger from radioSoC library
+#include "services/logger.h"
 
 
 
 
 void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
+
+	RTTLogger::log("Write characteristic.");
 
 	/*
 	 * validate: is my characteristic and len is proper
@@ -33,8 +36,9 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 	 */
 	else if (aWrite->uuid.type == 3 and aWrite->len ==1 ) {
 		NRFLog::log("Value written to my characteristic");
-
 		NRFLog::logInt(aWrite->data[0]);
+
+		RTTLogger::log("Value written to my characteristic");
 
 		// TODO, copy and pass value
 		/*
@@ -50,6 +54,7 @@ void AppHandler::onWrite(const ble_gatts_evt_write_t * aWrite) {
 		 * but not one that my app has defined.
 		 */
 		NRFLog::log("Write to unrecognized characteristic.");
+
 	}
 }
 

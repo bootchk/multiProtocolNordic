@@ -35,7 +35,8 @@ public:
 	 */
 	// static const int ProvisioningSessionDuration = 0xfffff0;	// 50 s
 	//static const int ProvisioningSessionDuration = 800000;		// 2.4s
-	static const int ProvisioningSessionDuration = 70;	// 2.1 mSec
+	//static const int ProvisioningSessionDuration = 70;	// 2.1 mSec
+	static const int ProvisioningSessionDuration = 400;	// 10 mSec
 
 	/*
 	 * Callback from IRQ for Timer.
@@ -84,5 +85,5 @@ public:
 	 * Timeout is fixed constant.
 	 * Ensures SD disabled on return.
 	 */
-	static void provisionWithSleep();
+	static bool provisionWithSleep();
 };
