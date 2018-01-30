@@ -215,7 +215,11 @@ uint32_t Service::init() {
 			&serviceData.serviceHandle);
 
 	if (err_code == NRF_SUCCESS) {
-		err_code = Characteristic::add(&serviceData, &serviceDataInit);
+		err_code = Characteristic::addProxy(
+				&serviceData,
+				&serviceDataInit,
+				Uuid::getCustomCharacteristicUUID()
+				);
 		// Service fails when characteristic fails
 	}
 

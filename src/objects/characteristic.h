@@ -2,9 +2,19 @@
 #pragma once
 
 #include <inttypes.h>
+
+// Parent
 #include "service.h"
 
+/*
+ * A property that Bluetooth and Softdevice proxy to the outside world.
+ */
 class Characteristic {
 public:
-	static uint32_t add(ServiceData*, ServiceDataInit*);
+	/*
+	 * Tell Softdevice to proxy
+	 */
+	static uint32_t addProxy(ServiceData*, ServiceDataInit*, ble_uuid_t*);
+
+	static bool isValidWrite(const ble_gatts_evt_write_t *);
 };

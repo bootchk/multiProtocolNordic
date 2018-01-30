@@ -162,7 +162,7 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 
 		// Tell app
 		// Passing address inside event.  Event must not be destroyed.  Caller must copy any data it wants.
-		AppHandler::onWrite(&bleEvent->evt.gatts_evt.params.write);
+		AppHandler::onWriteCharacteristic(&bleEvent->evt.gatts_evt.params.write);
 		break;
 
 	case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:	// 0x55

@@ -5,8 +5,9 @@
 // Implementation facade classes
 #include <softdeviceSleeper.h>
 #include "protocolStack.h"
-#include "nrfLog.h"
 #include "timerAdaptor.h"
+
+#include "nrfLog.h"
 
 
 
@@ -15,8 +16,8 @@ namespace {
 bool isProvisioningFlag = false;
 bool provisioningSessionResult = false;
 
-ProvisioningCallback succeedCallback = nullptr;
-ProvisioningCallback failCallback = nullptr;
+ProvisioningSucceedCallback succeedCallback = nullptr;
+ProvisioningFailCallback failCallback = nullptr;
 
 }	// namespace
 
@@ -24,7 +25,7 @@ ProvisioningCallback failCallback = nullptr;
 
 
 
-void Provisioner::init(ProvisioningCallback aSucceedCallback, ProvisioningCallback aFailCallback) {
+void Provisioner::init(ProvisioningSucceedCallback aSucceedCallback, ProvisioningFailCallback aFailCallback) {
 	succeedCallback = aSucceedCallback;
 	failCallback = aFailCallback;
 
@@ -102,7 +103,7 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
  * You can't shutdown SD at such a time?
  * Because it returns to the SD's chain of handlers.
  */
-void Provisioner::onProvisioned() {
+void Provisioner::onProvisioned(uint8_t provisionedValue) {
 	assert(isProvisioning());
 
 	// We did not timeout, cancel timer.
@@ -114,7 +115,7 @@ void Provisioner::onProvisioned() {
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Canceled);
 
 	// Tell app
-	succeedCallback();
+	succeedCallback(provisionedValue);
 
 	provisioningSessionResult = true;
 }
@@ -162,4 +163,11 @@ bool Provisioner::provisionWithSleep() {
 	// assert hw resources not used by SD, can be used by app
 	assert(! Provisioner::isProvisioning());
 	return provisioningSessionResult;
+}
+
+
+uint8_t Provisioner::getProvisionedValue(){
+	uint8_t result;
+	result = 1;
+	return result;
 }

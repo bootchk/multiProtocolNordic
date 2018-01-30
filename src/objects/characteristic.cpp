@@ -3,14 +3,17 @@
 
 #include <string.h>	// memset
 
-#include "uuid.h"
 
 
-
-uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused_servicefDataInit) {
+uint32_t Characteristic::addProxy(
+		ServiceData * serviceData,
+		ServiceDataInit * unused_servicefDataInit,
+		ble_uuid_t*  aUUID
+		)
+{
 	//static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
 	//{
-	uint32_t            err_code;
+	uint32_t            err_code = NRF_SUCCESS;
 
 	ble_gatts_char_md_t characteristicMetadata;
 	//ble_gatts_attr_md_t cccd_md;
@@ -70,7 +73,7 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 
 	memset(&attr_char_value, 0, sizeof(attr_char_value));
 
-	attr_char_value.p_uuid    = Uuid::getCustomCharacteristicUUID();
+	attr_char_value.p_uuid    = aUUID;
 	attr_char_value.p_attr_md = &attributeMetadata;
 	attr_char_value.init_len  = sizeof(uint8_t);
 	attr_char_value.init_offs = 0;
@@ -83,10 +86,9 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 			&characteristicMetadata,
 			&attr_char_value,
 			&serviceData->characteristicHandles);
-	if (err_code != NRF_SUCCESS)
-	{
-		return err_code;
-	}
+
+	return err_code;
+
 
 	/* Omit HID stuff
 	if (serviceDataInit->p_report_ref != NULL)
@@ -128,7 +130,19 @@ uint32_t Characteristic::add(ServiceData * serviceData, ServiceDataInit * unused
 		serviceData->report_ref_handle = BLE_GATT_HANDLE_INVALID;
 	}
 	*/
+}
 
-	return NRF_SUCCESS;
 
+/*
+ * If is my characteristic and length is sane.
+ *
+ * My characteristics are UUID type 3,... (long UUID)
+ * Type 2 is UUID of service?
+ * Type 1 is UUID of std characteristic predfined by BT org
+ */
+bool Characteristic::isValidWrite(const ble_gatts_evt_write_t * aWrite)
+{
+	return (aWrite->uuid.type == 3 	// UUID is long
+			and aWrite->len ==1	// length is valie
+			);
 }
