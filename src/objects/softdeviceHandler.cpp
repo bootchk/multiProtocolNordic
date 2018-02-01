@@ -200,8 +200,9 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 		break;
 
 	case  BLE_GAP_EVT_RSSI_CHANGED:
+		RTTLogger::log("RSSI changed");
 		/*
-		 * Here we take the max rssi.
+		 * Take max rssi.
 		 * We never stop taking rssi.
 		 */
 		int8_t receivedRssi;
