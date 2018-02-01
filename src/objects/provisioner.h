@@ -21,7 +21,9 @@
  *
  */
 
-typedef void (*ProvisioningSucceedCallback)(uint8_t);
+typedef void (*ProvisioningSucceedCallback)(
+		uint8_t value,
+		int8_t rssi);
 typedef void (*ProvisioningFailCallback)();
 
 
@@ -63,7 +65,7 @@ public:
 	// static const int ProvisioningSessionDuration = 0xfffff0;	// 50 s
 	//static const int ProvisioningSessionDuration = 800000;		// 2.4s
 	//static const int ProvisioningSessionDuration = 70;	// 2.1 mSec
-	static const int ProvisioningSessionDuration = 400000;	// 1.2 s
+	static const int ProvisioningSessionDuration =  40000;	// 1.2 s
 
 
 	/*

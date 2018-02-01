@@ -18,6 +18,17 @@
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
 
+namespace {
+
+// max RSSI during our brief connection
+int8_t maxRssi = 0;
+
+}
+
+
+int8_t Softdevice::maxRSSI() { return maxRssi; }
+
+
 /*
  * Handler of BLE events from BLEObserver (an SDK concept.)
  * Registered with and called from the BLE Stack event interrupt handler.
@@ -186,6 +197,17 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 
 	case BLE_GAP_EVT_TIMEOUT:	// 0x1B
 		RTTLogger::log("GAP advertising timeout");
+		break;
+
+	case  BLE_GAP_EVT_RSSI_CHANGED:
+		/*
+		 * Here we take the max rssi.
+		 * We never stop taking rssi.
+		 */
+		int8_t receivedRssi;
+		receivedRssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
+		if (receivedRssi > maxRssi)
+			maxRssi = receivedRssi;
 		break;
 
 	default:

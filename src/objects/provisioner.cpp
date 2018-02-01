@@ -7,6 +7,8 @@
 #include "protocolStack.h"
 #include "timerAdaptor.h"
 
+#include "softdevice.h"	// RSSI
+
 #include "nrfLog.h"
 
 
@@ -115,7 +117,8 @@ void Provisioner::onProvisioned(uint8_t provisionedValue) {
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Canceled);
 
 	// Tell app
-	succeedCallback(provisionedValue);
+	// RSSI may be zero?
+	succeedCallback(provisionedValue, Softdevice::maxRSSI());
 
 	provisioningSessionResult = true;
 }

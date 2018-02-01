@@ -33,14 +33,32 @@ const uint8_t DeviceName[DEVICE_NAME_LEN + 1] = "Firefly";
 
 uint16_t connectionHandle = BLE_CONN_HANDLE_INVALID;
 
+
+
+
+void rememberConnectionHandle(uint16_t aConnectionHandle) {
+	// Remember handle to connection, needed later?
+	// TODO also remembering connection in ServiceData?
+	connectionHandle = aConnectionHandle;
+}
+
+
 }
 
 
 void GAP::onConnect(const ble_evt_t * bleEvent) {
-	// Remember handle to connection, needed later?
-	// TODO also remembering connection in ServiceData?
-	connectionHandle = bleEvent->evt.gap_evt.conn_handle;
+	rememberConnectionHandle(bleEvent->evt.gap_evt.conn_handle);
+
+	/*
+	 *  Start getting events for RSSI changed on next connection exchange?
+	 *  Connection must precede this.
+	 */
+	 sd_ble_gap_rssi_start(connectionHandle,
+			4,	//  threshold_dbm,
+			1	// 	skip_count
+		);
 }
+
 
 void GAP::onDisconnect() {
 
@@ -56,7 +74,8 @@ void GAP::disconnect(const ble_evt_t * bleEvent) {
 }
 
 
-// Not used?
+#ifdef NOT_USED
+All events handled in softdeviceHandler.cpp
 
 void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 
@@ -184,6 +203,17 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 		}
 		break;
 
+	case  BLE_GAP_EVT_RSSI_CHANGED:
+		/*
+		 * Here we take the max rssi.
+		 * We never stop taking rssi.
+		 */
+		int8_t receivedRssi;
+		receivedRssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
+		if (receivedRssi > maxRssi)
+			maxRssi = receivedRssi;
+		break;
+
 	default:
 		// No implementation needed.
 		NRFLog::log("event not handled by GAP");
@@ -191,6 +221,7 @@ void GAP::onBleEvent(const ble_evt_t * bleEvent, void* foo) {
 		break;
 	}
 }
+#endif
 
 
 
