@@ -17,9 +17,25 @@ namespace {
 
 bool isProvisioningFlag = false;
 bool provisioningSessionResult = false;
+uint8_t provisionedValue = 0;
 
 ProvisioningSucceedCallback succeedCallback = nullptr;
 ProvisioningFailCallback failCallback = nullptr;
+
+
+// assert not in interrupt context, app is not realtime constrained.
+void callbackAppWithProvisioningResult() {
+	if (provisioningSessionResult ) {
+		 // assert SoftdeviceSleeper::getReasonForSDWake() == ReasonForSDWake::Canceled
+		// RSSI may be zero?
+		// We can use the facade but SD is disabled.
+		succeedCallback(provisionedValue, Softdevice::maxRSSI());
+	}
+	else {
+		failCallback();
+	}
+}
+
 
 }	// namespace
 
@@ -73,10 +89,16 @@ void Provisioner::shutdown() {
 
 
 
-
+/*
+ * ISR for RTCx.
+ *
+ * Interrupt does not necessarily mean that our timer (compare register) elapsed:
+ * overflow and other compare registers (although there aren't any in use)
+ * will also interrupt.
+ */
 void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
 	assert( Provisioner::isProvisioning() );
-	NRFLog::log("provisioning session timeout");
+	NRFLog::log("provisioner RTC interrupt");
 
 	switch(reason) {
 	case OverflowOrOtherTimerCompare:
@@ -89,7 +111,6 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
 		onTimerElapsed();
 		break;
 	}
-
 }
 
 
@@ -100,37 +121,42 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
  * Should be similar implementations
  */
 
+
 /*
  * Called from SD, from a handler.
+ * In interrupt context.
  * You can't shutdown SD at such a time?
  * Because it returns to the SD's chain of handlers.
  */
-void Provisioner::onProvisioned(uint8_t provisionedValue) {
+void Provisioner::onProvisioned(uint8_t aProvisionedValue) {
 	assert(isProvisioning());
 
 	// We did not timeout, cancel timer.
 	TimerAdaptor::stop();
 
 	/*
-	 * Semantics are one-shot: any provisioning ends sleep and session.
+	 * Tell SoftdeviceSleeper to quit its sleeping loop.
+	 * Semantics are one-shot: any one provisioning ends sleep and session.
 	 */
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Canceled);
 
-	// Tell app
-	// RSSI may be zero?
-	succeedCallback(provisionedValue, Softdevice::maxRSSI());
-
+	provisionedValue = aProvisionedValue;
 	provisioningSessionResult = true;
+
+	/*
+	 * Continuation is return to Softdevice handler,
+	 * then eventually to after call to SoftdeviceSleeper in provisionWithSleep().
+	 * There we will callback app (when not in interrupt context)
+	 */
 }
 
 void Provisioner::onTimerElapsed() {
 	// Time elapsed without any client provisioning us
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::TimedOut);
 
-	failCallback();
-	// assert oneshot timer not enabled
-
 	provisioningSessionResult = false;
+
+	// assert time is oneshot and thus no longer enabled
 }
 
 
@@ -158,13 +184,19 @@ bool Provisioner::provisionWithSleep() {
 
 	start();
 	NRFLog::log("Provisioner sleeps");
+
+	// Blocks in low-power until timer expires or client provisions us via Softdevice
 	SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(Provisioner::ProvisioningSessionDuration);
 
+	// Must be a reason we are not sleeping anymore
 	assert(SoftdeviceSleeper::getReasonForSDWake() != ReasonForSDWake::Cleared);
 
 	shutdown();
 	// assert hw resources not used by SD, can be used by app
 	assert(! Provisioner::isProvisioning());
+
+	callbackAppWithProvisioningResult();
+
 	return provisioningSessionResult;
 }
 
