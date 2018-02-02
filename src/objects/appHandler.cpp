@@ -52,7 +52,9 @@ void AppHandler::onConnect() {
 	RTTLogger::log("Connected.\n");
 }
 
-
+/*
+ * This doesn' seem to come, when we shutdown without calling disconnect()
+ */
 void AppHandler::onDisconnect(){
 	// App doesn't care about disconnections
 	RTTLogger::log("Disconnected.\n");

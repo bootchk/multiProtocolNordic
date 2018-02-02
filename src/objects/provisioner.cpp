@@ -7,7 +7,7 @@
 #include "protocolStack.h"
 #include "timerAdaptor.h"
 
-#include "softdevice.h"	// RSSI
+#include "rssi.h"
 
 #include "nrfLog.h"
 
@@ -27,9 +27,8 @@ ProvisioningFailCallback failCallback = nullptr;
 void callbackAppWithProvisioningResult() {
 	if (provisioningSessionResult ) {
 		 // assert SoftdeviceSleeper::getReasonForSDWake() == ReasonForSDWake::Canceled
-		// RSSI may be zero?
-		// We can use the facade but SD is disabled.
-		succeedCallback(provisionedValue, Softdevice::maxRSSI());
+
+		succeedCallback(provisionedValue, RSSI::getConnectionRSSI() );
 	}
 	else {
 		failCallback();
@@ -40,6 +39,7 @@ void callbackAppWithProvisioningResult() {
 }	// namespace
 
 
+uint8_t Provisioner::getProvisionedValue(){ return provisionedValue; }
 
 
 
@@ -74,6 +74,9 @@ void Provisioner::start() {
 
 void Provisioner::shutdown() {
 	NRFLog::log("Provisioner shutdown");
+
+	// Might be in a connection.
+	// Assume SD handles that case.
 
 	ProtocolStack::shutdown();
 
@@ -133,6 +136,8 @@ void Provisioner::onProvisioned(uint8_t aProvisionedValue) {
 
 	// We did not timeout, cancel timer.
 	TimerAdaptor::stop();
+
+	RSSI::captureLastRSSI();
 
 	/*
 	 * Tell SoftdeviceSleeper to quit its sleeping loop.
@@ -201,8 +206,4 @@ bool Provisioner::provisionWithSleep() {
 }
 
 
-uint8_t Provisioner::getProvisionedValue(){
-	uint8_t result;
-	result = 1;
-	return result;
-}
+

@@ -9,6 +9,7 @@
 #include "service.h"
 #include "gap.h"
 #include "appHandler.h"
+#include "rssi.h"
 
 
 // #include "nrfLog.h"
@@ -17,16 +18,6 @@
 // ???
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
-
-namespace {
-
-// max RSSI during our brief connection
-int8_t maxRssi = 0;
-
-}
-
-
-int8_t Softdevice::maxRSSI() { return maxRssi; }
 
 
 /*
@@ -201,14 +192,9 @@ void Softdevice::dispatchBleEvent( ble_evt_t const * bleEvent, void * context)
 
 	case  BLE_GAP_EVT_RSSI_CHANGED:
 		RTTLogger::log("RSSI changed");
-		/*
-		 * Take max rssi.
-		 * We never stop taking rssi.
-		 */
-		int8_t receivedRssi;
-		receivedRssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
-		if (receivedRssi > maxRssi)
-			maxRssi = receivedRssi;
+
+		RSSI::updateFromEvent(bleEvent);
+
 		break;
 
 	default:

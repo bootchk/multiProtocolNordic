@@ -3,6 +3,7 @@
 
 #include "nrfLog.h"
 #include "advertiser.h"
+#include "rssi.h"
 
 
 #include <inttypes.h>
@@ -49,14 +50,7 @@ void rememberConnectionHandle(uint16_t aConnectionHandle) {
 void GAP::onConnect(const ble_evt_t * bleEvent) {
 	rememberConnectionHandle(bleEvent->evt.gap_evt.conn_handle);
 
-	/*
-	 *  Start getting events for RSSI changed on next connection exchange?
-	 *  Connection must precede this.
-	 */
-	 sd_ble_gap_rssi_start(connectionHandle,
-			4,	//  threshold_dbm,
-			1	// 	skip_count
-		);
+	RSSI::startRSSIMeasurementOnConnection(connectionHandle);
 }
 
 
