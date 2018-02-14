@@ -6,6 +6,8 @@
 #include "provisioner.h"
 #include "characteristic.h"
 
+#include <cassert>
+
 // use logger from radioSoC library
 #include "services/logger.h"
 //#include "nrfLog.h"
@@ -22,18 +24,38 @@ void AppHandler::onWriteCharacteristic(const ble_gatts_evt_write_t * aWrite) {
 	 * or not one that app recognizes.
 	 */
 	if ( Characteristic::isValidWrite(aWrite)) {
-		uint8_t value = aWrite->data[0];
+		/*
+		 * Convert raw data into type that Provisioner provides
+		 */
+		// OLD when use byte, no conversion necessary:   uint8_t value = aWrite->data[0];
 
-		RTTLogger::log("Value written to my characteristic");
-		RTTLogger::log(value);
+		// TODO move assertion to isValidWrite
+		assert(aWrite->len == sizeof(ProvisionedValueType));
 
-		RTTLogger::log("Value written to my characteristic");
+		// TODO move deserialization
+		ProvisionedValueType provision;
+		// Deserialize
+		// Must match serialization in client
+		provision.value = aWrite->data[0];
+		provision.index = aWrite->data[1];
+		provision.offset = aWrite->data[2];
+		provision.unused = 0;
+
+		RTTLogger::log("Characteristic: ");
+		RTTLogger::log(" Value ");
+		RTTLogger::log(provision.value);
+		RTTLogger::log(" Index ");
+		RTTLogger::log(provision.index);
+		RTTLogger::log(" Offset ");
+		RTTLogger::log(provision.offset);
+
+
 
 		/*
 		 * Propagate up to app.  Here app is "provisioner."
 		 * Here, Provisioner will shutdown BLE.
 		 */
-		Provisioner::onProvisioned(value);
+		Provisioner::onProvisioned(provision);
 	}
 	else {
 		/*

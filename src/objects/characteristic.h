@@ -14,7 +14,7 @@ public:
 	/*
 	 * Tell Softdevice to proxy
 	 */
-	static uint32_t addProxy(ServiceData*, ServiceDataInit*, ble_uuid_t*);
+	static uint32_t addProxy(ServiceData*, ServiceDataInit*, ble_uuid_t*, unsigned int);
 
 	static bool isValidWrite(const ble_gatts_evt_write_t *);
 };

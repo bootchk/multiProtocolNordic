@@ -21,8 +21,21 @@
  *
  */
 
+/*
+ * Specific to provisioning, where user is choosing control widgets in a GUI,
+ * Each widget having a value (say a numeric, or a comboBox or menu item index)
+ */
+typedef struct ProvisionedValue {
+	uint8_t value;	// Value user chose
+	uint8_t index;	// Which widget (control) user
+	uint8_t offset; // Duration since user chose the control
+	uint8_t unused;
+} ProvisionedValueType;
+
+
+
 typedef void (*ProvisioningSucceedCallback)(
-		uint8_t value,
+		ProvisionedValueType value,
 		int8_t rssi);
 typedef void (*ProvisioningFailCallback)();
 
@@ -83,7 +96,7 @@ public:
 	 * Called from appHandler.cpp
 	 * i.e. events propagate from BLE resulting in ProvisioningCallback() call back to app.
 	 */
-	static void onProvisioned(uint8_t writtenValue);
+	static void onProvisioned(ProvisionedValueType writtenValue);
 
 
 
@@ -102,7 +115,7 @@ public:
 	 */
 	static bool provisionWithSleep();
 
-    static uint8_t getProvisionedValue();
+    static ProvisionedValueType getProvisionedValue();
 
 
 	/*

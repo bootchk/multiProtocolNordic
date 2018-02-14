@@ -8,7 +8,8 @@
 uint32_t Characteristic::addProxy(
 		ServiceData * serviceData,
 		ServiceDataInit * unused_servicefDataInit,
-		ble_uuid_t*  aUUID
+		ble_uuid_t*  aUUID,
+		unsigned int characteristicLength
 		)
 {
 	//static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
@@ -75,9 +76,9 @@ uint32_t Characteristic::addProxy(
 
 	attr_char_value.p_uuid    = aUUID;
 	attr_char_value.p_attr_md = &attributeMetadata;
-	attr_char_value.init_len  = sizeof(uint8_t);
+	attr_char_value.init_len  = characteristicLength;
 	attr_char_value.init_offs = 0;
-	attr_char_value.max_len   = sizeof(uint8_t);
+	attr_char_value.max_len   = characteristicLength;
 	// ??? the "Custom Char" tutorial uses NULL
 	attr_char_value.p_value   = NULL;	// &initialValue;
 

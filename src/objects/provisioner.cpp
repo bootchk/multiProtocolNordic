@@ -13,11 +13,13 @@
 
 
 
+
+
 namespace {
 
 bool isProvisioningFlag = false;
 bool provisioningSessionResult = false;
-uint8_t provisionedValue = 0;
+ProvisionedValueType provision;
 
 ProvisioningSucceedCallback succeedCallback = nullptr;
 ProvisioningFailCallback failCallback = nullptr;
@@ -28,7 +30,7 @@ void callbackAppWithProvisioningResult() {
 	if (provisioningSessionResult ) {
 		 // assert SoftdeviceSleeper::getReasonForSDWake() == ReasonForSDWake::Canceled
 
-		succeedCallback(provisionedValue, RSSI::getConnectionRSSI() );
+		succeedCallback(provision, RSSI::getConnectionRSSI() );
 	}
 	else {
 		failCallback();
@@ -39,7 +41,7 @@ void callbackAppWithProvisioningResult() {
 }	// namespace
 
 
-uint8_t Provisioner::getProvisionedValue(){ return provisionedValue; }
+ProvisionedValueType Provisioner::getProvisionedValue(){ return provision; }
 
 
 
@@ -131,7 +133,7 @@ void Provisioner::provisionElapsedTimerHandler(TimerInterruptReason reason) {
  * You can't shutdown SD at such a time?
  * Because it returns to the SD's chain of handlers.
  */
-void Provisioner::onProvisioned(uint8_t aProvisionedValue) {
+void Provisioner::onProvisioned(ProvisionedValueType aProvision) {
 	assert(isProvisioning());
 
 	// We did not timeout, cancel timer.
@@ -145,7 +147,7 @@ void Provisioner::onProvisioned(uint8_t aProvisionedValue) {
 	 */
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Canceled);
 
-	provisionedValue = aProvisionedValue;
+	provision = aProvision;
 	provisioningSessionResult = true;
 
 	/*

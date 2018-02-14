@@ -1,6 +1,8 @@
 
 #include "service.h"
 
+#include "provisioner.h"   // ProvisionedValueType
+
 #include <inttypes.h>
 #include "app_error.h"	// APP_ERROR_CHECK
 #include <string.h>	// memset
@@ -218,7 +220,8 @@ uint32_t Service::init() {
 		err_code = Characteristic::addProxy(
 				&serviceData,
 				&serviceDataInit,
-				Uuid::getCustomCharacteristicUUID()
+				Uuid::getCustomCharacteristicUUID(),
+				sizeof(ProvisionedValueType)	// len of characteristic
 				);
 		// Service fails when characteristic fails
 	}
