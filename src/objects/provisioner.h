@@ -23,11 +23,11 @@
 
 /*
  * Specific to provisioning, where user is choosing control widgets in a GUI,
- * Each widget having a value (say a numeric, or a comboBox or menu item index)
+ * Some widgets having an associated value (say a numeric, or a comboBox or menu item index)
  */
 typedef struct ProvisionedValue {
 	uint8_t value;	// Value user chose
-	uint8_t index;	// Which widget (control) user
+	uint8_t index;	// Which widget (control) user chose to provision
 	uint8_t offset; // Duration since user chose the control
 	uint8_t unused;
 } ProvisionedValueType;
