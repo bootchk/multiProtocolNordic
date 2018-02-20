@@ -8,7 +8,7 @@
 
 #include <cassert>
 
-// use logger from radioSoC library
+// from radioSoC library
 #include "services/logger.h"
 //#include "nrfLog.h"
 

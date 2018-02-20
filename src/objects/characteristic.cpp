@@ -3,6 +3,10 @@
 
 #include <string.h>	// memset
 
+#include "provisioner.h"   // ProvisionedValueType
+
+// from radioSoC library
+#include "services/logger.h"
 
 
 uint32_t Characteristic::addProxy(
@@ -143,7 +147,14 @@ uint32_t Characteristic::addProxy(
  */
 bool Characteristic::isValidWrite(const ble_gatts_evt_write_t * aWrite)
 {
-	return (aWrite->uuid.type == 3 	// UUID is long
-			and aWrite->len ==1	// length is valie
-			);
+	bool result = true;
+	if ( !( aWrite->uuid.type == 3 ) ) { 	// UUID is long
+		result = false;
+		RTTLogger::log("UUID wrong.\n");
+	}
+	if ( ! ( aWrite->len == sizeof(ProvisionedValueType) ) ) {	// length is valid
+		result = false;
+		RTTLogger::log("Length wrong.\n");
+	}
+	return result;
 }
