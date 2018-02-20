@@ -139,7 +139,11 @@ uint32_t Characteristic::addProxy(
 
 
 /*
- * If is my characteristic and length is sane.
+ * Semantic validity.
+ * All bytes are OTA and could be garbled (despite CRC check.)
+ * We don't check ALL semantics,
+ * i.e. that value byte is valid.
+ * Users of the characteristic still might need to check value.
  *
  * My characteristics are UUID type 3,... (long UUID)
  * Type 2 is UUID of service?
@@ -152,9 +156,18 @@ bool Characteristic::isValidWrite(const ble_gatts_evt_write_t * aWrite)
 		result = false;
 		RTTLogger::log("UUID wrong.\n");
 	}
-	if ( ! ( aWrite->len == Provisioner::ProvisionedCharacteristicLength ) ) {
+	else if ( ! ( aWrite->len == Provisioner::ProvisionedCharacteristicLength ) ) {
 		result = false;
 		RTTLogger::log("Length wrong.\n");
+	}
+	else if ( aWrite->data[1] > 3 ){
+		/*
+		 * data[1] is index, UInt8
+		 * Multiplexing many provisionable values through one characteristic
+		 * requires that index is in range of provisionable values.
+		 */
+		result = false;
+		RTTLogger::log("Index wrong.\n");
 	}
 	return result;
 }
