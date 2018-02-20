@@ -221,7 +221,7 @@ uint32_t Service::init() {
 				&serviceData,
 				&serviceDataInit,
 				Uuid::getCustomCharacteristicUUID(),
-				sizeof(ProvisionedValueType)	// len of characteristic
+				Provisioner::ProvisionedCharacteristicLength
 				);
 		// Service fails when characteristic fails
 	}

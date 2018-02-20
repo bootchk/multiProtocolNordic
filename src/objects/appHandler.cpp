@@ -29,8 +29,7 @@ void AppHandler::onWriteCharacteristic(const ble_gatts_evt_write_t * aWrite) {
 		 */
 		// OLD when use byte, no conversion necessary:   uint8_t value = aWrite->data[0];
 
-		// TODO move assertion to isValidWrite
-		assert(aWrite->len == sizeof(ProvisionedValueType));
+		// isValidWrite already ensures length is proper i.e. 4
 
 		// TODO move deserialization
 		ProvisionedValueType provision;
@@ -39,7 +38,7 @@ void AppHandler::onWriteCharacteristic(const ble_gatts_evt_write_t * aWrite) {
 		provision.value = aWrite->data[0];
 		provision.index = aWrite->data[1];
 		provision.offset = aWrite->data[2];
-		provision.unused = 0;
+		provision.tss = aWrite->data[3];
 
 		RTTLogger::log("Characteristic: ");
 		RTTLogger::log(" Value ");
@@ -48,7 +47,8 @@ void AppHandler::onWriteCharacteristic(const ble_gatts_evt_write_t * aWrite) {
 		RTTLogger::log(provision.index);
 		RTTLogger::log(" Offset ");
 		RTTLogger::log(provision.offset);
-
+		RTTLogger::log(" Tss ");
+		RTTLogger::log(provision.tss);
 
 
 		/*

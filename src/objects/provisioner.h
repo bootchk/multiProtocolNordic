@@ -24,12 +24,14 @@
 /*
  * Specific to provisioning, where user is choosing control widgets in a GUI,
  * Some widgets having an associated value (say a numeric, or a comboBox or menu item index)
+ *
+ * !!! length of OTA characteristic is not sizeof(ProvisionedValueType) since struct may be padded
  */
 typedef struct ProvisionedValue {
 	uint8_t value;	// Value user chose
 	uint8_t index;	// Which widget (control) user chose to provision
 	uint8_t offset; // Duration since user chose the control
-	uint8_t unused;
+	uint8_t tss;
 } ProvisionedValueType;
 
 
@@ -41,6 +43,10 @@ typedef void (*ProvisioningFailCallback)();
 
 
 class Provisioner {
+
+public:
+	static const int ProvisionedCharacteristicLength = 4;	// bytes
+
 private:
 	/*
 	 * Start provisioning service.

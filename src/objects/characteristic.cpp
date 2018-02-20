@@ -152,7 +152,7 @@ bool Characteristic::isValidWrite(const ble_gatts_evt_write_t * aWrite)
 		result = false;
 		RTTLogger::log("UUID wrong.\n");
 	}
-	if ( ! ( aWrite->len == sizeof(ProvisionedValueType) ) ) {	// length is valid
+	if ( ! ( aWrite->len == Provisioner::ProvisionedCharacteristicLength ) ) {
 		result = false;
 		RTTLogger::log("Length wrong.\n");
 	}
