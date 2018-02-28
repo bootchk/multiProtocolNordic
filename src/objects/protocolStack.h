@@ -13,7 +13,9 @@
 
 class ProtocolStack {
 public:
-	static void startup();
+	// returns false if fails
+	static bool startup();
+
 	static void shutdown();
 
 	static bool isEnabled();

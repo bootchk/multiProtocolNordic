@@ -54,7 +54,7 @@ private:
 	 * Service advertises, accepts connections, and writes.
 	 * Callbacks when writes are accepted.
 	 */
-	static void start();
+	static bool start();
 	static void shutdown();
 
 	static void onTimerElapsed();

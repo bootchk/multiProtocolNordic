@@ -3,7 +3,13 @@
 
 #include <inttypes.h>
 
-#include "app_error.h"	// APP_ERROR_CHECK
+// #include "app_error.h"	// APP_ERROR_CHECK
+
+
+/*
+ * Since our use of SD is not critical, return false if fails for any reason
+ */
+#define returnFalseOnSDError()  { if (err_code != NRF_SUCCESS) { return false; } }
 
 
 
@@ -36,7 +42,7 @@
 
 
 
-void Softdevice::enable() {
+bool Softdevice::enable() {
 	uint32_t           err_code;
 
 	// NRFLog::log("Enable SD\n");
@@ -86,7 +92,7 @@ void Softdevice::enable() {
 	NRFLog::flush();
 #else
 	err_code = nrf_sdh_enable_request();
-	APP_ERROR_CHECK(err_code);
+	returnFalseOnSDError();
 
 	ASSERT(nrf_sdh_is_enabled());
 
@@ -110,11 +116,11 @@ void Softdevice::enable() {
 	 * run through debugger, then change .ld file.
 	 */
 	err_code = nrf_sdh_ble_default_cfg_set(Softdevice::ProtocolTag, &ram_start);
-	APP_ERROR_CHECK(err_code);
+	returnFalseOnSDError();
 
 	// Enable BLE stack.
 	err_code = nrf_sdh_ble_enable(&ram_start);
-	APP_ERROR_CHECK(err_code);
+	returnFalseOnSDError();
 
 	/*
 	 * Register a handler for BLE events.
@@ -130,6 +136,7 @@ void Softdevice::enable() {
 	//NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler, NULL);
 	NRF_SDH_BLE_OBSERVER(bleObserver, APP_BLE_OBSERVER_PRIO, dispatchBleEvent, nullptr);
 #endif
+	return true;
 }
 
 
@@ -146,7 +153,12 @@ void Softdevice::disable() {
 
 	//NRFLog::log("Disable SD\n");
 	err_code = nrf_sdh_disable_request();
-	APP_ERROR_CHECK(err_code);
+
+	/*
+	 * Not checking error.
+	 * TODO are there any we can recover from?
+	 */
+	(void) err_code;
 
 	ASSERT(!nrf_sdh_is_enabled());
 }

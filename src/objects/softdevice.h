@@ -11,7 +11,7 @@ class Softdevice {
 	static const int ProtocolTag = 1;
 
 public:
-	static void enable();
+	static bool enable();
 	static bool isEnabled();
 	static void disable();
 

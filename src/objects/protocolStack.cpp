@@ -8,12 +8,15 @@
 
 
 
-void ProtocolStack::startup() {
-	Softdevice::enable();
+bool ProtocolStack::startup() {
+
+	if ( ! Softdevice::enable() ) return false;
 
 	BLEProtocol::start();
 
 	BLEProtocol::startAdvertising();
+
+	return true;
 }
 
 

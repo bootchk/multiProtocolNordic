@@ -60,7 +60,7 @@ void Provisioner::init(ProvisioningSucceedCallback aSucceedCallback, Provisionin
  * start() and shutdown() should be mirror images
  */
 
-void Provisioner::start() {
+bool Provisioner::start() {
 	NRFLog::log("Provisioner start");
 
 	// provisioning sessions are one at a time
@@ -69,9 +69,13 @@ void Provisioner::start() {
 	// assert self initialized
 	assert(succeedCallback != nullptr);
 
-	ProtocolStack::startup();
-
-	isProvisioningFlag = true;
+	if ( ! ProtocolStack::startup() ) {
+		return false;
+	}
+	else {
+		isProvisioningFlag = true;
+		return true;
+	}
 }
 
 void Provisioner::shutdown() {
@@ -189,22 +193,29 @@ bool Provisioner::provisionWithSleep() {
 	// Clear flag before starting session, it may succeed before we get to sleep
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Cleared);
 
-	start();
-	NRFLog::log("Provisioner sleeps");
+	if ( ! start() ) {
+		NRFLog::log("Provisioner unable to start");
+		return false;
+	}
+	else {
+		NRFLog::log("Provisioner sleeps");
 
-	// Blocks in low-power until timer expires or client provisions us via Softdevice
-	SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(Provisioner::ProvisioningSessionDuration);
+		// Blocks in low-power until timer expires or client provisions us via Softdevice
+		SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(Provisioner::ProvisioningSessionDuration);
 
-	// Must be a reason we are not sleeping anymore
-	assert(SoftdeviceSleeper::getReasonForSDWake() != ReasonForSDWake::Cleared);
+		// Must be a reason we are not sleeping anymore
+		// TODO check the exact set of reasons we expect
+		// If SD wakes us for an unknown reason, it might be left in a bad state.
+		assert(SoftdeviceSleeper::getReasonForSDWake() != ReasonForSDWake::Cleared);
 
-	shutdown();
-	// assert hw resources not used by SD, can be used by app
-	assert(! Provisioner::isProvisioning());
+		shutdown();
+		// assert hw resources not used by SD, can be used by app
+		assert(! Provisioner::isProvisioning());
 
-	callbackAppWithProvisioningResult();
+		callbackAppWithProvisioningResult();
 
-	return provisioningSessionResult;
+		return provisioningSessionResult;
+	}
 }
 
 
