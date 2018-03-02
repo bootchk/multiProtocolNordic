@@ -189,13 +189,16 @@ bool Provisioner::isProvisioning() {
 
 
 
-bool Provisioner::provisionWithSleep() {
+ProvisioningResult Provisioner::provisionWithSleep() {
+
+	ProvisioningResult result;
+
 	// Clear flag before starting session, it may succeed before we get to sleep
 	SoftdeviceSleeper::setReasonForSDWake(ReasonForSDWake::Cleared);
 
 	if ( ! start() ) {
 		NRFLog::log("Provisioner unable to start");
-		return false;
+		result = ProvisioningResult::SDError;
 	}
 	else {
 		NRFLog::log("Provisioner sleeps");
@@ -214,8 +217,12 @@ bool Provisioner::provisionWithSleep() {
 
 		callbackAppWithProvisioningResult();
 
-		return provisioningSessionResult;
+		if ( provisioningSessionResult )
+			result = ProvisioningResult::Provisioned;
+		else
+			result = ProvisioningResult::NotProvisioned;
 	}
+	return result;
 }
 
 

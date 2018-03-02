@@ -17,12 +17,14 @@ enum class ReasonForSDWake {
  * Knows how to sleep for Provisioner i.e. knows SD is enabled and coordinates with it
  */
 class SoftdeviceSleeper {
-public:
+
+private:
 	/*
 	 * Sleep until any one event.
 	 */
 	static void sleepInSDUntilAnyEvent();
 
+public:
 	/*
 	 * Sleep until SD is disabled OR duration.
 	 * May return before duration has elapsed.

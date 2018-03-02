@@ -42,6 +42,12 @@ typedef void (*ProvisioningSucceedCallback)(
 typedef void (*ProvisioningFailCallback)();
 
 
+enum class ProvisioningResult {
+	SDError,
+	Provisioned,
+	NotProvisioned
+};
+
 class Provisioner {
 
 public:
@@ -119,7 +125,7 @@ public:
 	 * Timeout is fixed constant.
 	 * Ensures SD disabled on return.
 	 */
-	static bool provisionWithSleep();
+	static ProvisioningResult provisionWithSleep();
 
     static ProvisionedValueType getProvisionedValue();
 

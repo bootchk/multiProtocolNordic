@@ -26,6 +26,8 @@ void SoftdeviceSleeper::sleepInSDUntilAnyEvent() {
 	APP_ERROR_CHECK(err_code);
 }
 
+
+
 void SoftdeviceSleeper::sleepInSDUntilTimeoutOrCanceled(uint32_t timeout) {
 
 	/*
